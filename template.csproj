@@ -68,7 +68,10 @@
   <ItemGroup>
     <Compile Include="Camera.cs" />
     <Compile Include="game.cs" />
+    <Compile Include="Plane.cs" />
+    <Compile Include="Primitive.cs" />
     <Compile Include="Ray.cs" />
+    <Compile Include="Sphere.cs" />
     <Compile Include="surface.cs" />
     <Compile Include="template.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

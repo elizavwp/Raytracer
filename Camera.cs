@@ -12,6 +12,7 @@ namespace template
     class Camera
     {
         Vector3 origin, direction;
+        Plane screen;
         public Camera()
         {
             origin = Vector3.Zero;
