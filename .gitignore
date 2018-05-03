@@ -1,4 +1,2 @@
-bin/debug/template.exe
-bin/debug/template.pdb
-obj/debug/template.exe
-obj/debug/template.pdb
+bin/*
+obj/*
