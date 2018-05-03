@@ -16,6 +16,7 @@ namespace Template
         public void Tick()
         {
             screen.Clear(0);
+            screen.Line(513, 0, 513, 512, 0xffffff);
         }
     }
 
