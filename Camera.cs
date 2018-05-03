@@ -11,10 +11,11 @@ namespace template
 {
     class Camera
     {
-        Vector3 origin;
-        public Camera(Vector3 origin)
+        Vector3 origin, direction;
+        public Camera()
         {
-            this.origin = origin;
+            origin = Vector3.Zero;
+            direction = new Vector3(0, 0, 1);
         }
     }
 }
