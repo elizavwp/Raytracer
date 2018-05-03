@@ -1,0 +1,10 @@
+D:\Universiteit\Graphics 3\Ray tracer\bin\Debug\template.exe.config
+D:\Universiteit\Graphics 3\Ray tracer\bin\Debug\template.exe
+D:\Universiteit\Graphics 3\Ray tracer\bin\Debug\template.pdb
+D:\Universiteit\Graphics 3\Ray tracer\bin\Debug\OpenTK.dll
+D:\Universiteit\Graphics 3\Ray tracer\obj\Debug\template.csprojResolveAssemblyReference.cache
+D:\Universiteit\Graphics 3\Ray tracer\obj\Debug\template.exe
+D:\Universiteit\Graphics 3\Ray tracer\obj\Debug\template.pdb
+D:\Universiteit\Graphics 3\Raytracer\bin\Debug\template.exe.config
+D:\Universiteit\Graphics 3\Raytracer\obj\Debug\template.exe
+D:\Universiteit\Graphics 3\Raytracer\obj\Debug\template.pdb
