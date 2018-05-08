@@ -11,15 +11,14 @@ namespace template
 {
     class Ray
     {
-        Vector3 origin, direction, normal;
-        float t;
+        public Vector3 origin, direction;
+        public float t;
 
         public Ray(Vector3 origin, Vector3 direction, float t)
         {
             this.origin = origin;
-            this.direction = direction;
+            this.direction = Normalize(direction);
             this.t = t;
-            normal = Normalize(direction);
         }
 
         public Vector3 Normalize(Vector3 direction)
