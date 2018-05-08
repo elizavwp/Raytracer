@@ -20,8 +20,8 @@ namespace template
         {
             camera = new Camera();
             primitives = new List<Primitive>();
+            primitives.Add(new Plane(new Vector3(0, 1, 0), -1));
             primitives.Add(new Sphere(3, new Vector3(0, 0, -7)));
-            primitives.Add(new Plane(new Vector3(1, 0, 0), 10));
         }
         // tick: renders one frame
         public void Tick()
@@ -34,9 +34,21 @@ namespace template
                 for (int y = 0; y < camera.pixels.GetLength(1); y++)
                     foreach (Primitive p in primitives)
                     {
-                        float color = p.Intersect(camera.pixels[x, y]);
-                        if (color > 0)
-                            screen.pixels[x + y * screen.width] = 0xffffff * (int)color;
+                        //Find the distance from the eye to the intersection
+                        float t = p.Intersect(camera.pixels[x, y]);
+
+                        //There is an intersection
+                        if (t > 0)
+                        {
+                            if (p.GetType() == typeof(Plane))
+                            {
+                                screen.pixels[x + y * screen.width] = 0xffffff * (int)(t * t * t);
+                            }
+                            else
+                            {
+                                screen.pixels[x + y * screen.width] = 0xffffff * (int)(t * t * t);
+                            }
+                        }
                     }
         }
     }
