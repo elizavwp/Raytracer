@@ -14,7 +14,7 @@ namespace template
         public Vector3 origin, direction;
         public float t;
 
-        public Ray(Vector3 origin, Vector3 direction, float t)
+        public Ray(Vector3 origin, Vector3 direction, float t = 1)
         {
             this.origin = origin;
             this.direction = Normalize(direction);

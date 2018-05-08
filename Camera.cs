@@ -11,6 +11,7 @@ namespace template
 {
     class Camera
     {
+        Ray[,] pixels;
         Vector3 origin, direction, centre;
         int fov;
         Plane screen;
@@ -21,6 +22,20 @@ namespace template
             direction = new Vector3(0, 0, -1);
             centre = origin + fov * direction;
             screen = new Plane(centre + new Vector3(-1, -1, 0), centre + new Vector3(1, -1, 0), centre + new Vector3(-1, 1, 0));
+            pixels = new Ray[512, 512];
+            PrimaryRays();
+        }
+    public void PrimaryRays()
+        {
+            for (float u = 0; u <= 512; u++)
+            {
+                for (float v = 0; v <= 512; v++)
+                {
+                    Vector3 puv = screen.p1 + u/512 * (screen.p2 - screen.p1) + v/512 * (screen.p3 - screen.p1);
+                    pixels[(int)u,(int)v] = new Ray(origin, puv-origin);
+                }
+            }
+
         }
     }
 }

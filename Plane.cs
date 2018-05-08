@@ -11,8 +11,8 @@ namespace template
 {
     class Plane : Primitive
     {
-        Vector3 normal;
-        float d;
+        public Vector3 normal, p1, p2, p3;
+        public float d;
         public Plane(Vector3 p1, Vector3 p2, Vector3 p3)
         {
             Vector3 p1p2 = new Vector3(p1.X - p2.X, p1.Y - p2.Y, p1.Z - p2.Z);
