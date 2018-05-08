@@ -14,3 +14,11 @@ D:\Universiteit\Graphics 3\Raytracer\bin\Debug\OpenTK.dll
 D:\Universiteit\Graphics 3\Raytracer\obj\Debug\template.csprojResolveAssemblyReference.cache
 C:\Users\eliza\source\repos\Raytracer\obj\Debug\template.csprojAssemblyReference.cache
 C:\Users\eliza\source\repos\Raytracer\obj\Debug\template.csproj.CoreCompileInputs.cache
+C:\Users\eliza\source\repos\Raytracer\bin\Debug\template.exe.config
+C:\Users\eliza\source\repos\Raytracer\bin\Debug\template.exe
+C:\Users\eliza\source\repos\Raytracer\bin\Debug\template.pdb
+C:\Users\eliza\source\repos\Raytracer\bin\Debug\OpenTK.dll
+C:\Users\eliza\source\repos\Raytracer\bin\Debug\OpenTK.dll.config
+C:\Users\eliza\source\repos\Raytracer\obj\Debug\template.csproj.CopyComplete
+C:\Users\eliza\source\repos\Raytracer\obj\Debug\template.exe
+C:\Users\eliza\source\repos\Raytracer\obj\Debug\template.pdb
