@@ -21,6 +21,7 @@ namespace template
             camera = new Camera();
             primitives = new List<Primitive>();
             primitives.Add(new Sphere(3, new Vector3(0, 0, -7)));
+            primitives.Add(new Plane(new Vector3(1, 0, 0), 10));
         }
         // tick: renders one frame
         public void Tick()
@@ -35,7 +36,7 @@ namespace template
                     {
                         float color = p.Intersect(camera.pixels[x, y]);
                         if (color > 0)
-                            screen.pixels[x + y * screen.width] = 0xff00ff;
+                            screen.pixels[x + y * screen.width] = 0xffffff * (int)color;
                     }
         }
     }

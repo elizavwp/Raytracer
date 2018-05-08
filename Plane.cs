@@ -27,6 +27,12 @@ namespace template
             d = -(Vector3.Dot(p1, normal));
         }
 
+        public Plane(Vector3 normal, float d)
+        {
+            this.normal = normal;
+            this.d = d;
+        }
+
         public override float Intersect(Ray ray)
         {
             return -(Vector3.Dot(ray.origin, normal) + d) / Vector3.Dot(ray.direction, normal);
