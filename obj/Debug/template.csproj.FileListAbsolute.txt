@@ -12,3 +12,5 @@ D:\Universiteit\Graphics 3\Raytracer\bin\Debug\template.exe
 D:\Universiteit\Graphics 3\Raytracer\bin\Debug\template.pdb
 D:\Universiteit\Graphics 3\Raytracer\bin\Debug\OpenTK.dll
 D:\Universiteit\Graphics 3\Raytracer\obj\Debug\template.csprojResolveAssemblyReference.cache
+C:\Users\eliza\source\repos\Raytracer\obj\Debug\template.csprojAssemblyReference.cache
+C:\Users\eliza\source\repos\Raytracer\obj\Debug\template.csproj.CoreCompileInputs.cache
