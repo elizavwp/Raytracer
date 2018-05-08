@@ -11,12 +11,8 @@ namespace template
 {
     abstract class Primitive
     {
-        public Vector3 origin;
-
-        public Primitive(Vector3 origin)
-        {
-            this.origin = origin;
-        }
+        public Primitive()
+        { }
 
         public abstract float Intersect(Ray ray);
 

@@ -11,10 +11,12 @@ namespace template
 {
     class Sphere : Primitive
     {
+        Vector3 origin;
         float radius, r2;
 
-        public Sphere(float radius, Vector3 origin) : base(origin)
+        public Sphere(float radius, Vector3 origin)
         {
+            this.origin = origin;
             this.radius = radius;
             r2 = radius * radius;
         }
