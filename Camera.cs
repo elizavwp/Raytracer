@@ -11,10 +11,10 @@ namespace template
 {
     class Camera
     {
-        Ray[,] pixels;
-        Vector3 origin, direction, centre;
-        int fov;
-        Plane screen;
+        public Ray[,] pixels;
+        public Vector3 origin, direction, centre;
+        public int fov;
+        public Plane screen;
         public Camera()
         {
             origin = Vector3.Zero;
@@ -27,11 +27,11 @@ namespace template
         }
     public void PrimaryRays()
         {
-            for (float u = 0; u <= 512; u++)
+            for (float u = 0; u < 512; u++)
             {
-                for (float v = 0; v <= 512; v++)
+                for (float v = 0; v < 512; v++)
                 {
-                    Vector3 puv = screen.p1 + u/512 * (screen.p2 - screen.p1) + v/512 * (screen.p3 - screen.p1);
+                    Vector3 puv = screen.p1 + u/511 * (screen.p2 - screen.p1) + v/511 * (screen.p3 - screen.p1);
                     pixels[(int)u,(int)v] = new Ray(origin, puv-origin);
                 }
             }

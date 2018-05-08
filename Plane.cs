@@ -15,6 +15,9 @@ namespace template
         public float d;
         public Plane(Vector3 p1, Vector3 p2, Vector3 p3)
         {
+            this.p1 = p1;
+            this.p2 = p2;
+            this.p3 = p3;
             Vector3 p1p2 = new Vector3(p1.X - p2.X, p1.Y - p2.Y, p1.Z - p2.Z);
             Vector3 p1p3 = new Vector3(p1.X - p3.X, p1.Y - p3.Y, p1.Z - p3.Z);
 
