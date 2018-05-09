@@ -19,9 +19,11 @@ namespace template
 
         // variables for the primary rays
         Ray shadowRay;
-        Vector3 intersect, shadowRayDir;
-        float t, closestPrim = float.MaxValue, shadowT, shadowPrimT, epsilon = 0.002f;
+        Vector3 intersect, shadowRayDir, eIncoming, eReflected, finalColour;
+        Primitive closestPrim;
+        float t, tClosestPrim = float.MaxValue, shadowT, shadowPrimT, epsilon = 0.002f, lightBrightness;
         bool occluder = false;
+        int colour;
 
         // initialize
         public void Init()
@@ -30,20 +32,23 @@ namespace template
 
             //Add primitives to the scene
             primitives = new List<Primitive>();
-            primitives.Add(new Plane(new Vector3(0, 1, 0), -1));
-            primitives.Add(new Sphere(3, new Vector3(0, -2, -10)));
+            primitives.Add(new Plane(new Vector3(0, -1, 0), 1, new Vector3(0.8f, 0.8f, 0.8f)));
+            primitives.Add(new Sphere(3, new Vector3(0, -2, -10), new Vector3(0.1f, 1f, 0.1f)));
+            primitives.Add(new Sphere(1, new Vector3(3,  0, -5 ), new Vector3(1f, 1f, 1f)));
+            primitives.Add(new Sphere(8, new Vector3(10, -12, -20), new Vector3(0.9f, 0.4f, 1f)));
+            primitives.Add(new Sphere(1, new Vector3(-3, 0, -5), new Vector3(0.3f, 0.9f, 0.9f)));
 
             //Add Lightsources to the scene
             lights = new List<PointLight>();
-            lights.Add(new PointLight(new Vector3(0, -10, -1), 0.8f, 0xffff00));
-            lights.Add(new PointLight(new Vector3(0, -1, -15), 0.3f, 0xff00ff));
+            lights.Add(new PointLight(new Vector3(0, -10, -1), 0.8f, new Vector3(1, 1, 1)));
+            lights.Add(new PointLight(new Vector3(0, -15, -5), 0.4f, new Vector3(1, 0, 1)));
 
         }
         // tick: renders one frame
         public void Tick()
         {
             screen.Clear(0);
-            screen.Line(513, 0, 513, 512, 0xffffff);
+            screen.Line(512, 0, 512, 512, 0xffffff);
 
             ShootRays();
         }
@@ -53,7 +58,8 @@ namespace template
             for (int x = 0; x < camera.pixels.GetLength(0); x++)
                 for (int y = 0; y < camera.pixels.GetLength(1); y++)
                 {
-                    closestPrim = float.MaxValue;
+                    finalColour = Vector3.Zero;
+                    tClosestPrim = float.MaxValue;
                     //Find neares primitive
                     foreach (Primitive p in primitives)
                     {
@@ -61,15 +67,18 @@ namespace template
                         t = p.Intersect(camera.pixels[x, y]);
 
                         //Make sure it's the closest one yet (and that is indeed visible by checking t > 0)
-                        if (t > 0 && t < closestPrim)
-                            closestPrim = t;
+                        if (t > 0 && t < tClosestPrim)
+                        {
+                            tClosestPrim = t;
+                            closestPrim = p;
+                        }
                     }
 
                     //There is an intersection
-                    if (closestPrim < float.MaxValue)
+                    if (tClosestPrim < float.MaxValue)
                     {
                         //Intersection Point
-                        intersect = camera.pixels[x, y].FindPoint(closestPrim);
+                        intersect = camera.pixels[x, y].FindPoint(tClosestPrim);
 
                         //Check for each light if a it can be seen from the intersection point
                         foreach (PointLight light in lights)
@@ -104,11 +113,57 @@ namespace template
                             //If there is an occluder check the next light
                             if (occluder)
                                 continue;
-                            else screen.pixels[x + y * screen.width] += (int)(light.colour * light.brightness);
+                            else
+                            {
+                                //Distance attenuation
+                                lightBrightness = light.brightness - (light.brightness / (shadowT * shadowT));
+                                eIncoming = light.colour * lightBrightness;
 
+                                //N dot L
+                                eIncoming *= Vector3.Dot(closestPrim.Normal(intersect), shadowRayDir);
+                                
+                                //Light absorbtion
+                                eReflected = EntrywiseProduct(eIncoming, closestPrim.colour);
+
+                                //Colouring pixel
+                                finalColour += eReflected;
+                            }
                         }
                     }
+
+                    //Make sure the individual colourvalues don't exceed 1
+                    ClampVector(ref finalColour, 1.0f);
+
+                    //Colour pixel
+                    colour = (((int)(finalColour.X * 255) << 16) + ((int)(finalColour.Y * 255) << 8) + (int)(finalColour.Z * 255));
+                    screen.pixels[x + y * screen.width] += colour;
                 }
+        }
+
+        public Vector3 EntrywiseProduct(Vector3 vector1, Vector3 vector2)
+        {
+            return new Vector3(vector1.X * vector2.X, vector1.Y * vector2.Y, vector1.Z * vector2.Z);
+        }
+
+        public void ClampVector(ref Vector3 vector, float clampHigh, float clampLow = float.MinValue)
+        {
+            //X component
+            if (vector.X < clampLow)
+                vector.X = clampLow;
+            if (vector.X > clampHigh)
+                vector.X = clampHigh;
+            
+            //Y component
+            if (vector.Y < clampLow)
+                vector.Y = clampLow;
+            if (vector.Y > clampHigh)
+                vector.Y = clampHigh;
+
+            //Z component
+            if (vector.Z < clampLow)
+                vector.Z = clampLow;
+            if (vector.Z > clampHigh)
+                vector.Z = clampHigh;
         }
     }
 }// namespace Template

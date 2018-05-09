@@ -21,7 +21,7 @@ namespace template
             fov = 1;
             direction = new Vector3(0, 0, -1);
             centre = origin + fov * direction;
-            screen = new Plane(centre + new Vector3(-1, -1, 0), centre + new Vector3(1, -1, 0), centre + new Vector3(-1, 1, 0));
+            screen = new Plane(centre + new Vector3(-1, -1, 0), centre + new Vector3(1, -1, 0), centre + new Vector3(-1, 1, 0), Vector3.Zero, 1);
             pixels = new Ray[512, 512];
             PrimaryRays();
         }

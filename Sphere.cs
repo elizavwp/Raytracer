@@ -14,7 +14,7 @@ namespace template
         Vector3 origin;
         float radius, r2;
 
-        public Sphere(float radius, Vector3 origin)
+        public Sphere(float radius, Vector3 origin, Vector3 colour, float glass = 0.0f, float reflective = 0.0f) : base(colour, glass, reflective)
         {
             this.origin = origin;
             this.radius = radius;
@@ -27,6 +27,7 @@ namespace template
             //If the ray starts within the sphere, we use different code
             if ((((ray.origin.X - origin.X) * (ray.origin.X - origin.X)) + ((ray.origin.Y - origin.Y) * (ray.origin.Y - origin.Y)) + ((ray.origin.Z - origin.Z) * (ray.origin.Z - origin.Z))) < r2)
             {
+                //Needs to be edited
                 return 0.0001f;
             }
 
@@ -42,6 +43,11 @@ namespace template
                 // or: ray.t = min( ray.t, max( 0, t ) );
                 return t;
             }
+        }
+
+        public override Vector3 Normal (Vector3 point)
+        {
+            return ((point - origin).Normalized());
         }
     }
 }
