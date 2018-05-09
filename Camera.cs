@@ -35,7 +35,6 @@ namespace template
                     pixels[(int)u,(int)v] = new Ray(origin, puv-origin);
                 }
             }
-
         }
     }
 }
