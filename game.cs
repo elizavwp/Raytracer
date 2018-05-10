@@ -49,8 +49,8 @@ namespace template
         {
             screen.Clear(0);
             screen.Line(512, 0, 512, 512, 0xffffff);
-
             ShootRays();
+            screen.Print("FOV = " + camera.fov, 5, 5, 0xffffff);
         }
 
         public void ShootRays()
