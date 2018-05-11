@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Drawing;
+using System.Drawing.Imaging;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
@@ -19,11 +21,12 @@ namespace template
 
         // variables for the primary rays
         Ray shadowRay;
-        Vector3 intersect, shadowRayDir, eIncoming, eReflected, finalColour;
+        Vector3 intersect, shadowRayDir, eIncoming, eReflected, textureColour, finalColour;
+        Vector2 textureLocation;
         Primitive closestPrim;
         float t, tClosestPrim = float.MaxValue, shadowT, shadowPrimT, epsilon = 0.002f, lightBrightness;
         bool occluder = false;
-        int colour;
+        Bitmap skybox = new Bitmap("../../assets/skybox.png");
 
         // initialize
         public void Init()
@@ -32,16 +35,16 @@ namespace template
 
             //Add primitives to the scene
             primitives = new List<Primitive>();
-            primitives.Add(new Plane(new Vector3(0, -1, 0), 1, new Vector3(0.8f, 0.8f, 0.8f)));
+            primitives.Add(new TexturedPlane(new Vector3(1, 0, 0), new Vector3(0, 0, -1), new Vector3(0, -1, 0), 1, new Vector3(1), "../../assets/tiles.png"));
             primitives.Add(new Sphere(3, new Vector3(0, -2, -10), new Vector3(0.1f, 1f, 0.1f)));
             primitives.Add(new Sphere(1, new Vector3(3,  0, -5 ), new Vector3(1f, 1f, 1f)));
-            primitives.Add(new Sphere(8, new Vector3(10, -12, -20), new Vector3(0.9f, 0.4f, 1f)));
+            primitives.Add(new Sphere(8, new Vector3(10, -7, -20), new Vector3(0.9f, 0.4f, 1f)));
             primitives.Add(new Sphere(1, new Vector3(-3, 0, -5), new Vector3(0.3f, 0.9f, 0.9f)));
 
             //Add Lightsources to the scene
             lights = new List<PointLight>();
-            lights.Add(new PointLight(new Vector3(0, -10, -1), 0.8f, new Vector3(1, 1, 1)));
-            lights.Add(new PointLight(new Vector3(0, -15, -5), 0.4f, new Vector3(1, 0, 1)));
+            lights.Add(new PointLight(new Vector3(0, -10, -1), 0.8f, new Vector3(0.5f, 1, 1)));
+            lights.Add(new PointLight(new Vector3(0, -15, -5), 0.4f, new Vector3(1, 0.5f, 1)));
 
         }
         // tick: renders one frame
@@ -58,6 +61,7 @@ namespace template
             for (int x = 0; x < camera.pixels.GetLength(0); x++)
                 for (int y = 0; y < camera.pixels.GetLength(1); y++)
                 {
+                    textureLocation = Vector2.Zero;
                     finalColour = Vector3.Zero;
                     tClosestPrim = float.MaxValue;
                     //Find neares primitive
@@ -74,7 +78,7 @@ namespace template
                         }
                     }
 
-                    //There is an intersection
+                    //There is a primitive visible from the pixel draw that primitive
                     if (tClosestPrim < float.MaxValue)
                     {
                         //Intersection Point
@@ -121,28 +125,50 @@ namespace template
 
                                 //N dot L
                                 eIncoming *= Vector3.Dot(closestPrim.Normal(intersect), shadowRayDir);
-                                
+
                                 //Light absorbtion
-                                eReflected = EntrywiseProduct(eIncoming, closestPrim.colour);
+                                //
+                                //Check wether the primitive is textured
+                                if (closestPrim.GetType() == typeof(TexturedPlane))
+                                {
+                                    textureLocation = EntrywiseProduct(new Vector2(Frac(Vector2.Dot(intersect.Xz, closestPrim.p1p2.Xz)), Frac(Vector2.Dot(intersect.Xz, closestPrim.p1p3.Xz))), new Vector2((closestPrim.texture.Width - 1), (closestPrim.texture.Height - 1)));
+                                    textureColour = ColourToVector(closestPrim.texture.GetPixel((int)textureLocation.X, (int)textureLocation.Y));
+                                    eReflected = EntrywiseProduct(eIncoming, textureColour);
+                                }
+
+                                else eReflected = EntrywiseProduct(eIncoming, closestPrim.colour);
 
                                 //Colouring pixel
                                 finalColour += eReflected;
                             }
                         }
+                        //Make sure the individual colourvalues don't exceed 1
+                        ClampVector(ref finalColour, 1.0f);
+
+                        //Colour pixel
+                        screen.pixels[x + y * screen.width] += VectorToInt(finalColour);
                     }
 
-                    //Make sure the individual colourvalues don't exceed 1
-                    ClampVector(ref finalColour, 1.0f);
+                    //If there is no primitive visible from a certain pixel, we draw a sky box
+                    else
+                    {
+                        //The 3 * x and 3 * y are done to make the skyboxtexture less zoomed in
+                        textureLocation = EntrywiseProduct(new Vector2(Frac(3 * x / (float)skybox.Width), Frac(3 * y / (float)skybox.Height)), new Vector2((skybox.Width - 1), (skybox.Height - 1)));
+                        screen.pixels[x + y * screen.width] = VectorToInt(ColourToVector(skybox.GetPixel((int)textureLocation.X, (int)textureLocation.Y)));
+                    }
 
-                    //Colour pixel
-                    colour = (((int)(finalColour.X * 255) << 16) + ((int)(finalColour.Y * 255) << 8) + (int)(finalColour.Z * 255));
-                    screen.pixels[x + y * screen.width] += colour;
+
                 }
         }
 
         public Vector3 EntrywiseProduct(Vector3 vector1, Vector3 vector2)
         {
             return new Vector3(vector1.X * vector2.X, vector1.Y * vector2.Y, vector1.Z * vector2.Z);
+        }
+
+        public Vector2 EntrywiseProduct(Vector2 vector1, Vector2 vector2)
+        {
+            return new Vector2(vector1.X * vector2.X, vector1.Y * vector2.Y);
         }
 
         public void ClampVector(ref Vector3 vector, float clampHigh, float clampLow = float.MinValue)
@@ -164,6 +190,22 @@ namespace template
                 vector.Z = clampLow;
             if (vector.Z > clampHigh)
                 vector.Z = clampHigh;
+        }
+
+        public Vector3 ColourToVector(Color4 colour)
+        {
+            return new Vector3(colour.R, colour.G, colour.B);
+        }
+
+        public int VectorToInt(Vector3 colour)
+        {
+            return (((int)(colour.X * 255) << 16) + ((int)(colour.Y * 255) << 8) + (int)(colour.Z * 255));
+        }
+
+        //Gets the value after the decimal point of a float
+        public float Frac(float i)
+        {
+            return (float)(i - Math.Floor(i));
         }
     }
 }// namespace Template

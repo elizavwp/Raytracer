@@ -49,5 +49,10 @@ namespace template
         {
             return ((point - origin).Normalized());
         }
+
+        public override Vector3 Normal()
+        {
+            return Vector3.Zero;
+        }
     }
 }

@@ -43,5 +43,10 @@ namespace template
             return normal;
         }
 
+        public override Vector3 Normal()
+        {
+            return normal;
+        }
+
     }
 }
