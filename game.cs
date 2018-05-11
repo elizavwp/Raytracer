@@ -24,7 +24,7 @@ namespace template
         Vector3 intersect, shadowRayDir, eIncoming, eReflected, textureColour, finalColour;
         Vector2 textureLocation;
         Primitive closestPrim;
-        float t, tClosestPrim = float.MaxValue, shadowT, shadowPrimT, epsilon = 0.002f, lightBrightness;
+        float t, tClosestPrim = float.MaxValue, shadowT, shadowPrimT, epsilon = 0.001f, lightBrightness;
         bool occluder = false;
         Bitmap skybox = new Bitmap("../../assets/skybox.png");
 
@@ -36,15 +36,15 @@ namespace template
             //Add primitives to the scene
             primitives = new List<Primitive>();
             primitives.Add(new TexturedPlane(new Vector3(1, 0, 0), new Vector3(0, 0, -1), new Vector3(0, -1, 0), 1, new Vector3(1), "../../assets/tiles.png"));
-            primitives.Add(new Sphere(3, new Vector3(0, -2, -10), new Vector3(0.1f, 1f, 0.1f)));
-            primitives.Add(new Sphere(1, new Vector3(3,  0, -5 ), new Vector3(1f, 1f, 1f)));
-            primitives.Add(new Sphere(8, new Vector3(10, -7, -20), new Vector3(0.9f, 0.4f, 1f)));
-            primitives.Add(new Sphere(1, new Vector3(-3, 0, -5), new Vector3(0.3f, 0.9f, 0.9f)));
+            primitives.Add(new Sphere(3, new Vector3(-1.5f, -2, -13), new Vector3(0.1f, 1f, 0.1f)));
+            primitives.Add(new Sphere(1, new Vector3(3,  0, -8), new Vector3(1f, 1f, 1f)));
+            primitives.Add(new Sphere(8, new Vector3(11, -7, -23), new Vector3(0.9f, 0.4f, 1f)));
+            primitives.Add(new Sphere(1, new Vector3(-4, 0, -8), new Vector3(0.3f, 0.9f, 0.9f)));
 
             //Add Lightsources to the scene
             lights = new List<PointLight>();
             lights.Add(new PointLight(new Vector3(0, -10, -1), 0.8f, new Vector3(0.5f, 1, 1)));
-            lights.Add(new PointLight(new Vector3(0, -15, -5), 0.4f, new Vector3(1, 0.5f, 1)));
+            lights.Add(new PointLight(new Vector3(0, -15, -5), 0.4f, new Vector3(1, 0.5f, 0)));
 
         }
         // tick: renders one frame
