@@ -18,14 +18,14 @@ namespace template
         public Camera()
         {
             origin = Vector3.Zero;
-            fovDist = 1;// 0.55f;
+            fovDist = 1f;
             direction = new Vector3(0, 0, -1);
             centre = origin + fovDist * direction;
             screen = new Plane(centre + new Vector3(-1, -1, 0), centre + new Vector3(1, -1, 0), centre + new Vector3(-1, 1, 0), Vector3.Zero);
             pixels = new Ray[512, 512];
             PrimaryRays();
 
-            fov = Vector3.Dot(screen.p1, screen.p2) == 1 ? 90 : (float)Math.Round(Math.Acos(Vector3.Dot(screen.p1, screen.p2)) / Math.PI * 180.0f);
+            fov = 90+((float)Math.Round(Math.Acos(Vector3.Dot(screen.p1, screen.p2)) / Math.PI * 180.0f));
         }
 
         public void PrimaryRays()
