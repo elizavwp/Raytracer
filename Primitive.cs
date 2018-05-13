@@ -15,11 +15,11 @@ namespace template
     {
         public Vector3 colour, p1p2, p1p3;
         public Bitmap texture;
-        public float glass, reflective;
-        public Primitive(Vector3 colour, float glass = 0.0f, float reflective = 0.0f)
+        public bool dielectric, reflective;
+        public Primitive(Vector3 colour, bool dielectric = false, bool reflective = false)
         {
             this.colour = colour;
-            this.glass = glass;
+            this.dielectric = dielectric;
             this.reflective = reflective;
         }
 

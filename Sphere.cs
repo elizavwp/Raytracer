@@ -14,7 +14,7 @@ namespace template
         Vector3 origin;
         float radius, r2;
 
-        public Sphere(float radius, Vector3 origin, Vector3 colour, float glass = 0.0f, float reflective = 0.0f) : base(colour, glass, reflective)
+        public Sphere(float radius, Vector3 origin, Vector3 colour, bool dielectric = false, bool reflective = false) : base(colour, dielectric, reflective)
         {
             this.origin = origin;
             this.radius = radius;

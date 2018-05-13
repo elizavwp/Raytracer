@@ -15,7 +15,7 @@ namespace template
     {
         public Vector3 normal;
         public float d;
-        public TexturedPlane(Vector3 p1p2, Vector3 p1p3, Vector3 normal, float d, Vector3 colour, string texture, float glass = 0.0f, float reflective = 0.0f) : base(colour, glass, reflective)
+        public TexturedPlane(Vector3 p1p2, Vector3 p1p3, Vector3 normal, float d, Vector3 colour, string texture, bool dielectric = false, bool reflective = false) : base(colour, dielectric, reflective)
         {
             this.p1p2 = p1p2;
             this.p1p3 = p1p3;
