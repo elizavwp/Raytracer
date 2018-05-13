@@ -25,7 +25,10 @@ namespace template
             pixels = new Ray[512, 512];
             PrimaryRays();
 
-            fov = 90+((float)Math.Round(Math.Acos(Vector3.Dot(screen.p1, screen.p2)) / Math.PI * 180.0f));
+            //FOV is calculated by calculating the dot product of the two vector going to the top-left and top-right corner
+            //followed by taking the ArcCos of it to find the angle. The direction is subtracted from the vectors to make sure we get the
+            //right angle, and the result is divided by pi and multiplied by 180 to get degrees instead of radians.
+            fov = ((float)Math.Round(Math.Acos(Vector3.Dot(((screen.p1 - origin) - direction), ((screen.p2 - origin) - direction))) / Math.PI * 180.0f));
         }
 
         public void PrimaryRays()
