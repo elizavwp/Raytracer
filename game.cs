@@ -23,8 +23,8 @@ namespace template
         Ray shadowRay;
         Vector3 intersect, shadowRayDir, eIncoming, eReflected, textureColour, finalColour;
         Vector2 textureLocation;
-        Primitive closestPrim, reflectedPrim;
-        float t, tClosestPrim = float.MaxValue, tReflectedPrim = float.MaxValue, shadowT, shadowPrimT, epsilon = 0.001f, lightBrightness;
+        Primitive closestPrim;
+        float t, tClosestPrim = float.MaxValue, shadowT, shadowPrimT, epsilon = 0.001f, lightBrightness;
         bool occluder = false;
         Bitmap skybox = new Bitmap("../../assets/skybox.png");
 
@@ -35,6 +35,7 @@ namespace template
 
             //Add primitives to the scene
             primitives = new List<Primitive>();
+            //primitives.Add(new Plane(new Vector3(0, -1, 0), 1, new Vector3(1), false, true));
             primitives.Add(new TexturedPlane(new Vector3(1, 0, 0), new Vector3(0, 0, -1), new Vector3(0, -1, 0), 1, new Vector3(1), "../../assets/tiles.png"));
             primitives.Add(new Sphere(3, new Vector3(-1.5f, -2, -13), new Vector3(0.1f, 1f, 0.1f)));
             primitives.Add(new Sphere(1, new Vector3(3, 0, -8), new Vector3(1f, 1f, 1f), false, true));
@@ -63,6 +64,7 @@ namespace template
                     tClosestPrim = float.MaxValue;
 
                     ShootRay(camera.pixels[x, y], x, y, 0);
+
                 }
 
             screen.Print("FOV = " + camera.fov, 5, 5, 0xffffff);
@@ -70,9 +72,6 @@ namespace template
 
         public void ShootRay(Ray ray, int x, int y, int recursion)
         {
-            if (recursion >= 2)
-                return;
-
             textureLocation = Vector2.Zero;
             finalColour = Vector3.Zero;
             tClosestPrim = float.MaxValue;
@@ -81,7 +80,7 @@ namespace template
             foreach (Primitive p in primitives)
             {
                 //Find the distance from the eye to the intersection
-                t = p.Intersect(camera.pixels[x, y]);
+                t = p.Intersect(ray);
 
                 //Make sure it's the closest one yet (and that is indeed visible by checking t > 0)
                 if (t > 0 && t < tClosestPrim)
@@ -92,10 +91,10 @@ namespace template
             }
 
             //There is a primitive visible from the pixel draw that primitive
-            if (tClosestPrim < float.MaxValue)
+            if (tClosestPrim < float.MaxValue && recursion <= 60)
             {
                 //Intersection Point
-                intersect = camera.pixels[x, y].FindPoint(tClosestPrim);
+                intersect = ray.FindPoint(tClosestPrim);
 
                 //Check wether the primitive is reflective
                 if (closestPrim.reflective)
@@ -107,6 +106,7 @@ namespace template
 
                     //Shoot reflection ray
                     ShootRay(new Ray(intersect, newDirection), x, y, ++recursion);
+                    screen.pixels[x + y * screen.width] = ClampInt(screen.pixels[x + y * screen.width], 1.0f);
                 }
 
                 else
@@ -169,12 +169,13 @@ namespace template
                             finalColour += eReflected;
                         }
                     }
-                }
                 //Make sure the individual colourvalues don't exceed 1
                 ClampVector(ref finalColour, 1.0f);
 
                 //Colour pixel
-                screen.pixels[x + y * screen.width] += VectorToInt(finalColour);
+                screen.pixels[x + y * screen.width] = VectorToInt(finalColour);
+                }
+
             }
 
             //If there is no primitive visible from a certain pixel, we draw a sky box
@@ -196,6 +197,12 @@ namespace template
             return new Vector2(vector1.X * vector2.X, vector1.Y * vector2.Y);
         }
 
+        public int ClampInt(int colour, float clampHigh, float clampLow = float.MinValue)
+        {
+            Vector3 colourVector = intToVector(colour);
+            ClampVector(ref colourVector, clampHigh, clampLow);
+            return VectorToInt(colourVector);
+        }
         public void ClampVector(ref Vector3 vector, float clampHigh, float clampLow = float.MinValue)
         {
             //X component
@@ -215,6 +222,11 @@ namespace template
                 vector.Z = clampLow;
             if (vector.Z > clampHigh)
                 vector.Z = clampHigh;
+        }
+
+        public Vector3 intToVector(int colour)
+        {
+            return new Vector3(((colour >> 16) & 255) / 255f, ((colour >> 8) & 255) / 255f, (colour & 255) / 255f);
         }
 
         public Vector3 ColourToVector(Color4 colour)
