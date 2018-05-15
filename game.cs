@@ -20,12 +20,7 @@ namespace template
         public List<PointLight> lights;
 
         // variables for the primary rays
-        Ray shadowRay;
-        Vector3 intersect, shadowRayDir, eIncoming, eReflected, textureColour, finalColour;
-        Vector2 textureLocation;
-        Primitive closestPrim;
-        float t, tClosestPrim = float.MaxValue, shadowT, shadowPrimT, epsilon = 0.001f, lightBrightness;
-        bool occluder = false;
+
         Bitmap skybox = new Bitmap("../../assets/skybox.png");
 
         // initialize
@@ -35,9 +30,9 @@ namespace template
 
             //Add primitives to the scene
             primitives = new List<Primitive>();
-            primitives.Add(new TexturedPlane(new Vector3(1, 0, 0), new Vector3(0, 0, -1), new Vector3(0, -1, 0), 1, new Vector3(1), "../../assets/tiles.png", 0, 0.25f));
+            primitives.Add(new TexturedPlane(new Vector3(1, 0, 0), new Vector3(0, 0, -1), new Vector3(0, -1, 0), 1, new Vector3(1), "../../assets/tiles.png", 0, 0.2f));
             primitives.Add(new Sphere(3, new Vector3(-1.5f, -2, -13), new Vector3(0.1f, 1f, 0.1f)));
-            primitives.Add(new Sphere(1, new Vector3(3, 0, -8), new Vector3(1f, 0.7f, 0.7f), 0, 1));
+            primitives.Add(new Sphere(1, new Vector3(3, 0, -8), new Vector3(1f, 0.7f, 0.7f), 0, 0.8f));
             primitives.Add(new Sphere(8, new Vector3(11, -7, -23), new Vector3(0.9f, 0.4f, 1f)));
             primitives.Add(new Sphere(1, new Vector3(-4, 0, -8), new Vector3(0.3f, 0.9f, 0.9f)));
             primitives.Add(new Sphere(0.5f, new Vector3(0, 0.5f, -4), new Vector3(1f, 1f, 1f)));
@@ -58,9 +53,6 @@ namespace template
             for (int x = 0; x < camera.pixels.GetLength(0); x++)
                 for (int y = 0; y < camera.pixels.GetLength(1); y++)
                 {
-                    textureLocation = Vector2.Zero;
-                    finalColour = Vector3.Zero;
-                    tClosestPrim = float.MaxValue;
 
                     screen.pixels[x + y * screen.width] = VectorToInt(ShootRay(camera.pixels[x, y], x, y, 0));
                     ClampInt(screen.pixels[x + y * screen.width], 1.0f);
@@ -71,6 +63,12 @@ namespace template
 
         public Vector3 ShootRay(Ray ray, int x, int y, int recursion)
         {
+            Ray shadowRay;
+            Vector3 intersect, shadowRayDir, eIncoming, eReflected, textureColour, finalColour;
+            Vector2 textureLocation;
+            Primitive closestPrim = new Plane(Vector3.Zero, 0, Vector3.Zero);
+            float t, tClosestPrim = float.MaxValue, shadowT, shadowPrimT, epsilon = 0.001f, lightBrightness;
+            bool occluder = false;
             textureLocation = Vector2.Zero;
             finalColour = Vector3.Zero;
             tClosestPrim = float.MaxValue;
@@ -110,7 +108,8 @@ namespace template
                     Ray reflectedRay = new Ray(intersect, newDirection);
                     reflectedRay.ShadowAcneFix(epsilon);
                     Vector3 primColour = closestPrim.colour;
-                    finalColour += reflection * (EntrywiseProduct(ShootRay(reflectedRay, x, y, ++recursion), primColour));
+                    Vector3 temp = ShootRay(reflectedRay, x, y, ++recursion);
+                    finalColour += reflection * (EntrywiseProduct(temp, primColour));
                 }
 
                 if (closestPrim.reflective < 1.0f)
