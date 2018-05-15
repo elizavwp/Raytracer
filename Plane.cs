@@ -13,7 +13,7 @@ namespace template
     {
         public Vector3 normal, p1, p2, p3;
         public float d;
-        public Plane(Vector3 p1, Vector3 p2, Vector3 p3)
+        public Plane(Vector3 p1, Vector3 p2, Vector3 p3, Vector3 colour, float dielectric = 0, float reflective = 0) : base(colour, dielectric, reflective)
         {
             this.p1 = p1;
             this.p2 = p2;
@@ -27,7 +27,7 @@ namespace template
             d = -(Vector3.Dot(p1, normal));
         }
 
-        public Plane(Vector3 normal, float d)
+        public Plane(Vector3 normal, float d, Vector3 colour, float dielectric = 0, float reflective = 0) : base(colour, dielectric, reflective)
         {
             this.normal = normal;
             this.d = d;
@@ -36,6 +36,16 @@ namespace template
         public override float Intersect(Ray ray)
         {
             return -(Vector3.Dot(ray.origin, normal) + d) / Vector3.Dot(ray.direction, normal);
+        }
+
+        public override Vector3 Normal(Vector3 point)
+        {
+            return normal;
+        }
+
+        public override Vector3 Normal()
+        {
+            return normal;
         }
 
     }
