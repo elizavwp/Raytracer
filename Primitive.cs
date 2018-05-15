@@ -15,8 +15,8 @@ namespace template
     {
         public Vector3 colour, p1p2, p1p3;
         public Bitmap texture;
-        public bool dielectric, reflective;
-        public Primitive(Vector3 colour, bool dielectric = false, bool reflective = false)
+        public float dielectric, reflective;
+        public Primitive(Vector3 colour, float dielectric = 0, float reflective = 0)
         {
             this.colour = colour;
             this.dielectric = dielectric;

@@ -35,10 +35,10 @@ namespace template
 
             //Add primitives to the scene
             primitives = new List<Primitive>();
-            //primitives.Add(new Plane(new Vector3(0, -1, 0), 1, new Vector3(1), false, true));
+            //primitives.Add(new Plane(new Vector3(0, -1, 0), 1, new Vector3(1f, 1f, 0f), 0, 1));
             primitives.Add(new TexturedPlane(new Vector3(1, 0, 0), new Vector3(0, 0, -1), new Vector3(0, -1, 0), 1, new Vector3(1), "../../assets/tiles.png"));
             primitives.Add(new Sphere(3, new Vector3(-1.5f, -2, -13), new Vector3(0.1f, 1f, 0.1f)));
-            primitives.Add(new Sphere(1, new Vector3(3, 0, -8), new Vector3(1f, 1f, 1f), false, true));
+            primitives.Add(new Sphere(1, new Vector3(3, 0, -8), new Vector3(1f, 0.7f, 0.7f), 0, 1));
             primitives.Add(new Sphere(8, new Vector3(11, -7, -23), new Vector3(0.9f, 0.4f, 1f)));
             primitives.Add(new Sphere(1, new Vector3(-4, 0, -8), new Vector3(0.3f, 0.9f, 0.9f)));
             primitives.Add(new Sphere(0.5f, new Vector3(0, 0.5f, -4), new Vector3(1f, 1f, 1f)));
@@ -63,14 +63,14 @@ namespace template
                     finalColour = Vector3.Zero;
                     tClosestPrim = float.MaxValue;
 
-                    ShootRay(camera.pixels[x, y], x, y, 0);
-
+                    screen.pixels[x + y * screen.width] = VectorToInt(ShootRay(camera.pixels[x, y], x, y, 0));
+                    ClampInt(screen.pixels[x + y * screen.width], 1.0f);
                 }
 
             screen.Print("FOV = " + camera.fov, 5, 5, 0xffffff);
         }
 
-        public void ShootRay(Ray ray, int x, int y, int recursion)
+        public Vector3 ShootRay(Ray ray, int x, int y, int recursion)
         {
             textureLocation = Vector2.Zero;
             finalColour = Vector3.Zero;
@@ -91,13 +91,13 @@ namespace template
             }
 
             //There is a primitive visible from the pixel draw that primitive
-            if (tClosestPrim < float.MaxValue && recursion <= 60)
+            if (tClosestPrim < float.MaxValue && recursion <= 64)
             {
                 //Intersection Point
                 intersect = ray.FindPoint(tClosestPrim);
 
                 //Check wether the primitive is reflective
-                if (closestPrim.reflective)
+                if (closestPrim.reflective > 0f)
                 {
                     //Find new direction for the reflected ray
                     Vector3 intersectNormal = closestPrim.Normal(intersect);
@@ -105,8 +105,10 @@ namespace template
                     Vector3 newDirection = ray.direction - 2 * (Vector3.Dot(ray.direction, intersectNormal) * intersectNormal);
 
                     //Shoot reflection ray
-                    ShootRay(new Ray(intersect, newDirection), x, y, ++recursion);
-                    screen.pixels[x + y * screen.width] = ClampInt(screen.pixels[x + y * screen.width], 1.0f);
+                    Ray reflectedRay = new Ray(intersect, newDirection);
+                    reflectedRay.ShadowAcneFix(epsilon);
+                    Vector3 primColour = closestPrim.colour;
+                    return (EntrywiseProduct(ShootRay(reflectedRay, x, y, ++recursion), primColour));
                 }
 
                 else
@@ -169,11 +171,11 @@ namespace template
                             finalColour += eReflected;
                         }
                     }
-                //Make sure the individual colourvalues don't exceed 1
-                ClampVector(ref finalColour, 1.0f);
+                    //Make sure the individual colourvalues don't exceed 1
+                    ClampVector(ref finalColour, 1.0f);
 
-                //Colour pixel
-                screen.pixels[x + y * screen.width] = VectorToInt(finalColour);
+                    //Return colour
+                    return finalColour;
                 }
 
             }
@@ -183,7 +185,7 @@ namespace template
             {
                 //The 3 * x and 3 * y are done to make the skyboxtexture less zoomed in
                 textureLocation = EntrywiseProduct(new Vector2(Frac(3 * x / (float)skybox.Width), Frac(3 * y / (float)skybox.Height)), new Vector2((skybox.Width - 1), (skybox.Height - 1)));
-                screen.pixels[x + y * screen.width] = VectorToInt(ColourToVector(skybox.GetPixel((int)textureLocation.X, (int)textureLocation.Y)));
+                return ColourToVector(skybox.GetPixel((int)textureLocation.X, (int)textureLocation.Y));
             }
         }
 
