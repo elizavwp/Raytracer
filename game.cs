@@ -35,8 +35,7 @@ namespace template
 
             //Add primitives to the scene
             primitives = new List<Primitive>();
-            //primitives.Add(new Plane(new Vector3(0, -1, 0), 1, new Vector3(1f, 1f, 0f), 0, 1));
-            primitives.Add(new TexturedPlane(new Vector3(1, 0, 0), new Vector3(0, 0, -1), new Vector3(0, -1, 0), 1, new Vector3(1), "../../assets/tiles.png"));
+            primitives.Add(new TexturedPlane(new Vector3(1, 0, 0), new Vector3(0, 0, -1), new Vector3(0, -1, 0), 1, new Vector3(1), "../../assets/tiles.png", 0, 0.25f));
             primitives.Add(new Sphere(3, new Vector3(-1.5f, -2, -13), new Vector3(0.1f, 1f, 0.1f)));
             primitives.Add(new Sphere(1, new Vector3(3, 0, -8), new Vector3(1f, 0.7f, 0.7f), 0, 1));
             primitives.Add(new Sphere(8, new Vector3(11, -7, -23), new Vector3(0.9f, 0.4f, 1f)));
@@ -93,12 +92,15 @@ namespace template
             //There is a primitive visible from the pixel draw that primitive
             if (tClosestPrim < float.MaxValue && recursion <= 64)
             {
+
                 //Intersection Point
                 intersect = ray.FindPoint(tClosestPrim);
 
                 //Check wether the primitive is reflective
                 if (closestPrim.reflective > 0f)
                 {
+                    float reflection = closestPrim.reflective;
+
                     //Find new direction for the reflected ray
                     Vector3 intersectNormal = closestPrim.Normal(intersect);
                     intersectNormal.Normalize();
@@ -108,10 +110,10 @@ namespace template
                     Ray reflectedRay = new Ray(intersect, newDirection);
                     reflectedRay.ShadowAcneFix(epsilon);
                     Vector3 primColour = closestPrim.colour;
-                    return (EntrywiseProduct(ShootRay(reflectedRay, x, y, ++recursion), primColour));
+                    finalColour += reflection * (EntrywiseProduct(ShootRay(reflectedRay, x, y, ++recursion), primColour));
                 }
 
-                else
+                if (closestPrim.reflective < 1.0f)
                 {
                     //Check for each light if a it can be seen from the intersection point
                     foreach (PointLight light in lights)
@@ -168,16 +170,15 @@ namespace template
                             else eReflected = EntrywiseProduct(eIncoming, closestPrim.colour);
 
                             //Colouring pixel
-                            finalColour += eReflected;
+                            finalColour += (1 - closestPrim.reflective) * eReflected;
                         }
                     }
                     //Make sure the individual colourvalues don't exceed 1
                     ClampVector(ref finalColour, 1.0f);
+                }
 
                     //Return colour
                     return finalColour;
-                }
-
             }
 
             //If there is no primitive visible from a certain pixel, we draw a sky box
