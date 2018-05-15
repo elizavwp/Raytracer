@@ -1,5 +1,16 @@
 Bart Broekman 5657679
+
+
 Eliza
 
 
-The code for finding the reflection vector was found here: https://math.stackexchange.com/questions/13261/how-to-get-a-reflection-vector
+
+Controls:
+W/S: Increase/Decrease Z
+A/D: Increase/Decrease X
+Space/Left Shift: Increase/Decrease Y
+
+Q/E: Rotate Left/Right
+R/F: Rotate Up/Down
+
+Numpad +/-: Increase Decrease FOV

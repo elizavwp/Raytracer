@@ -38,5 +38,17 @@ namespace template
                 }
             }
         }
+
+        public void UpdateCamera(float x, float y, float z, float yRotation, float xRotation, float newFov)
+        {
+            origin = new Vector3(x, y, z);
+            fov = newFov;
+            fovDist = 1 / (float)Math.Tan(((fov * (Math.PI / 180.0f)) / 2));
+            direction = new Vector3(xRotation, yRotation, -1);
+            centre = origin + fovDist * direction;
+            screen = new Plane(centre + new Vector3(-1, -1, 0), centre + new Vector3(1, -1, 0), centre + new Vector3(-1, 1, 0), Vector3.Zero);
+            pixels = new Ray[512, 512];
+            PrimaryRays();
+        }
     }
 }

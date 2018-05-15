@@ -8,6 +8,7 @@ using System.Drawing.Imaging;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
+using OpenTK.Input;
 namespace template
 {
 
@@ -19,7 +20,9 @@ namespace template
         public List<Primitive> primitives;
         public List<PointLight> lights;
 
-        // variables for the primary rays
+        // variables for the camera movement
+        float x, y, z, yRotation, xRotation, newFov = 90;
+        bool keyPressed;
 
         Bitmap skybox = new Bitmap("../../assets/skybox.png");
 
@@ -46,6 +49,8 @@ namespace template
         // tick: renders one frame
         public void Tick()
         {
+            CheckMovement();
+
             screen.Clear(0);
             screen.Line(512, 0, 512, 512, 0xffffff);
 
@@ -58,7 +63,7 @@ namespace template
                     ClampInt(screen.pixels[x + y * screen.width], 1.0f);
                 }
 
-            screen.Print("FOV = " + camera.fov, 5, 5, 0xffffff);
+            screen.Print("FOV = " + camera.fov, 517, 5, 0xffffff);
         }
 
         public Vector3 ShootRay(Ray ray, int x, int y, int recursion)
@@ -187,6 +192,76 @@ namespace template
                 textureLocation = EntrywiseProduct(new Vector2(Frac(3 * x / (float)skybox.Width), Frac(3 * y / (float)skybox.Height)), new Vector2((skybox.Width - 1), (skybox.Height - 1)));
                 return ColourToVector(skybox.GetPixel((int)textureLocation.X, (int)textureLocation.Y));
             }
+        }
+
+        public void CheckMovement()
+        {
+            keyPressed = false;
+
+            if (Keyboard.GetState().IsKeyDown(Key.Space))
+            {
+                keyPressed = true;
+                y -= 0.1f;
+            }
+            if (Keyboard.GetState().IsKeyDown(Key.ShiftLeft))
+            {
+                keyPressed = true;
+                y += 0.1f;
+            }
+            if (Keyboard.GetState().IsKeyDown(Key.W))
+            {
+                keyPressed = true;
+                z -= 0.1f;
+            }
+            if (Keyboard.GetState().IsKeyDown(Key.S))
+            {
+                keyPressed = true;
+                z += 0.1f;
+            }
+            if (Keyboard.GetState().IsKeyDown(Key.A))
+            {
+                keyPressed = true;
+                x -= 0.1f;
+            }
+            if (Keyboard.GetState().IsKeyDown(Key.D))
+            {
+                keyPressed = true;
+                x += 0.1f;
+            }
+            if (Keyboard.GetState().IsKeyDown(Key.KeypadPlus))
+            {
+                keyPressed = true;
+                newFov += 5;
+            }
+            if (Keyboard.GetState().IsKeyDown(Key.KeypadMinus))
+            {
+                keyPressed = true;
+                newFov -= 5;
+            }
+            if (Keyboard.GetState().IsKeyDown(Key.Q))
+            {
+                keyPressed = true;
+                xRotation -= 0.1f;
+            }
+            if (Keyboard.GetState().IsKeyDown(Key.E))
+            {
+                keyPressed = true;
+                xRotation -= 0.1f;
+            }
+            if (Keyboard.GetState().IsKeyDown(Key.R))
+            {
+                keyPressed = true;
+                yRotation -= 0.1f;
+            }
+            if (Keyboard.GetState().IsKeyDown(Key.F))
+            {
+                keyPressed = true;
+                yRotation += 0.1f;
+            }
+
+
+            if (keyPressed)
+                camera.UpdateCamera(x, y, z, yRotation, xRotation, newFov);
         }
 
         public Vector3 EntrywiseProduct(Vector3 vector1, Vector3 vector2)
