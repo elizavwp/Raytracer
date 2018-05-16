@@ -37,7 +37,7 @@ namespace template
             primitives.Add(new Sphere(3, new Vector3(-1.5f, -2, -13), new Vector3(0.1f, 1f, 0.1f)));
             primitives.Add(new Sphere(1, new Vector3(3, 0, -8), new Vector3(1f, 0.7f, 0.7f), 0, 0.8f));
             primitives.Add(new Sphere(8, new Vector3(11, -7, -23), new Vector3(0.9f, 0.4f, 1f)));
-            primitives.Add(new Sphere(1, new Vector3(-4, 0, -8), new Vector3(0.3f, 0.9f, 0.9f)));
+            primitives.Add(new Sphere(1, new Vector3(-1, 0, -8), new Vector3(1), 1));// new Vector3(0.3f, 0.9f, 0.9f)));
             primitives.Add(new Sphere(0.5f, new Vector3(0, 0.5f, -4), new Vector3(1f, 1f, 1f)));
 
             //Add Lightsources to the scene
@@ -66,12 +66,12 @@ namespace template
             screen.Print("FOV = " + camera.fov, 517, 5, 0xffffff);
         }
 
-        public Vector3 ShootRay(Ray ray, int x, int y, int recursion)
+        public Vector3 ShootRay(Ray ray, int x, int y, int recursion, float refractionIndex = 1.0f)
         {
             Ray shadowRay;
             Vector3 intersect, shadowRayDir, eIncoming, eReflected, textureColour, finalColour;
             Vector2 textureLocation;
-            Primitive closestPrim = new Plane(Vector3.Zero, 0, Vector3.Zero);
+            Primitive closestPrim = new Plane(Vector3.Zero, Vector3.Zero, Vector3.Zero, Vector3.Zero);
             float t, tClosestPrim = float.MaxValue, shadowT, shadowPrimT, epsilon = 0.001f, lightBrightness;
             bool occluder = false;
             textureLocation = Vector2.Zero;
@@ -93,7 +93,7 @@ namespace template
             }
 
             //There is a primitive visible from the pixel draw that primitive
-            if (tClosestPrim < float.MaxValue && recursion <= 64)
+            if (tClosestPrim < float.MaxValue && recursion <= 4)
             {
 
                 //Intersection Point
@@ -113,11 +113,36 @@ namespace template
                     Ray reflectedRay = new Ray(intersect, newDirection);
                     reflectedRay.ShadowAcneFix(epsilon);
                     Vector3 primColour = closestPrim.colour;
-                    Vector3 temp = ShootRay(reflectedRay, x, y, ++recursion);
-                    finalColour += reflection * (EntrywiseProduct(temp, primColour));
+                    Vector3 reflectionRay = ShootRay(reflectedRay, x, y, ++recursion);
+                    finalColour += reflection * (EntrywiseProduct(reflectionRay, primColour));
                 }
 
-                if (closestPrim.reflective < 1.0f)
+                if(closestPrim.dielectric > 0f)
+                {
+                    //Find new direction for the reflected ray
+                    Vector3 intersectNormal = closestPrim.Normal(intersect);
+                    intersectNormal.Normalize();
+                    Vector3 newDirection = ray.direction - 2 * (Vector3.Dot(ray.direction, intersectNormal) * intersectNormal);
+
+                    //Shoot reflection ray
+                    Ray reflectedRay = new Ray(intersect, newDirection);
+                    reflectedRay.ShadowAcneFix(epsilon);
+                    Vector3 primColour = closestPrim.colour;
+                    Vector3 reflection = ShootRay(reflectedRay, x, y, ++recursion);
+
+                    //Find new direction for the refracted ray
+                    float angle = (float)Math.Acos(Vector3.Dot(intersectNormal, ray.direction));
+                    float refractedAngle = (float)Math.Asin((refractionIndex * Math.Sin(angle)) / closestPrim.refractionIndex);
+                    float refract = refractionIndex / closestPrim.refractionIndex;
+                    Vector3 refractedRayDir = refract * ray.direction + (float)(refract * Math.Cos(angle) - Math.Cos(refractedAngle)) * intersectNormal;
+                    Ray refractedRay = new Ray(intersect, refractedRayDir);
+                    refractedRay.ShadowAcneFix(epsilon);
+                    Vector3 refraction = ShootRay(refractedRay, x, y, ++recursion, closestPrim.refractionIndex);
+                    finalColour += /*(0.5f * closestPrim.dielectric) * (EntrywiseProduct(reflection, primColour)) + (0.5f * */closestPrim.dielectric * (refraction);
+
+                }
+
+                if (closestPrim.diffuse > 0f)
                 {
                     //Check for each light if a it can be seen from the intersection point
                     foreach (PointLight light in lights)
@@ -246,7 +271,7 @@ namespace template
             if (Keyboard.GetState().IsKeyDown(Key.E))
             {
                 keyPressed = true;
-                xRotation -= 0.1f;
+                xRotation += 0.1f;
             }
             if (Keyboard.GetState().IsKeyDown(Key.R))
             {

@@ -1,16 +1,25 @@
-Bart Broekman 5657679
+Bart Broekman: 5657679
+Eliza:
 
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-Eliza
+Camera controls:
+- W/S: Increase/Decrease Z
+- A/D: Increase/Decrease X
+- Space/Left Shift: Increase/Decrease Y
 
+- Q/E: Rotate Left/Right
+- R/F: Rotate Up/Down
 
+- Numpad +/-: Increase Decrease FOV
 
-Controls:
-W/S: Increase/Decrease Z
-A/D: Increase/Decrease X
-Space/Left Shift: Increase/Decrease Y
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-Q/E: Rotate Left/Right
-R/F: Rotate Up/Down
+Extra assignments:
+- A HDR textured skydome
 
-Numpad +/-: Increase Decrease FOV
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Material used:
+- Slides from the lectures
+- For the calculation of the direction of the refracted ray: https://en.wikipedia.org/wiki/Snell%27s_law

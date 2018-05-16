@@ -15,12 +15,14 @@ namespace template
     {
         public Vector3 colour, p1p2, p1p3;
         public Bitmap texture;
-        public float dielectric, reflective;
-        public Primitive(Vector3 colour, float dielectric = 0, float reflective = 0)
+        public float dielectric, reflective, refractionIndex, diffuse;
+        public Primitive(Vector3 colour, float dielectric = 0, float reflective = 0, float refractionIndex = 1.52f)
         {
             this.colour = colour;
             this.dielectric = dielectric;
             this.reflective = reflective;
+            this.refractionIndex = refractionIndex;
+            diffuse = 1 - dielectric + reflective;
         }
 
         public abstract float Intersect(Ray ray);
