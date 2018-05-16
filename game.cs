@@ -37,7 +37,7 @@ namespace template
             primitives.Add(new Sphere(3, new Vector3(-1.5f, -2, -13), new Vector3(0.1f, 1f, 0.1f)));
             primitives.Add(new Sphere(1, new Vector3(3, 0, -8), new Vector3(1f, 0.7f, 0.7f), 0, 0.8f));
             primitives.Add(new Sphere(8, new Vector3(11, -7, -23), new Vector3(0.9f, 0.4f, 1f)));
-            primitives.Add(new Sphere(1, new Vector3(-1, 0, -8), new Vector3(1), 1f));// new Vector3(0.3f, 0.9f, 0.9f)));
+            primitives.Add(new Sphere(1, new Vector3(-1, 0, -8), new Vector3(1), 0.6f));// new Vector3(0.3f, 0.9f, 0.9f)));
             primitives.Add(new Sphere(0.5f, new Vector3(0, 0.5f, -4), new Vector3(1f, 1f, 1f)));
 
             //Add Lightsources to the scene
@@ -198,7 +198,7 @@ namespace template
                             else eReflected = EntrywiseProduct(eIncoming, closestPrim.colour);
 
                             //Colouring pixel
-                            finalColour += (1 - closestPrim.reflective) * eReflected;
+                            finalColour +=  closestPrim.diffuse * eReflected;
                         }
                     }
                     //Make sure the individual colourvalues don't exceed 1

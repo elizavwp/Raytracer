@@ -22,7 +22,7 @@ namespace template
             this.dielectric = dielectric;
             this.reflective = reflective;
             this.refractionIndex = refractionIndex;
-            diffuse = 1 - dielectric + reflective;
+            diffuse = 1f - (dielectric + reflective);
         }
 
         public abstract float Intersect(Ray ray);
