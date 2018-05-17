@@ -37,7 +37,7 @@ namespace template
             primitives.Add(new Sphere(3, new Vector3(-1.5f, -2, -13), new Vector3(0.1f, 1f, 0.1f)));
             primitives.Add(new Sphere(1, new Vector3(3, 0, -8), new Vector3(1f, 0.7f, 0.7f), 0, 0.8f));
             primitives.Add(new Sphere(8, new Vector3(11, -7, -23), new Vector3(0.9f, 0.4f, 1f)));
-            primitives.Add(new Sphere(1, new Vector3(-1, 0, -8), new Vector3(0.3f, 0.9f, 0.9f), 0.9f));
+            primitives.Add(new Sphere(1, new Vector3(-1, 0, -5.5f), new Vector3(1f, 1f, 1f), 1f, 0, 1.52f));
             primitives.Add(new Sphere(0.5f, new Vector3(0, 0.5f, -4), new Vector3(1f, 1f, 1f)));
 
             //Add Lightsources to the scene
@@ -121,9 +121,12 @@ namespace template
 
                 if (closestPrim.dielectric > 0f)
                 {
+                    float primRefractionIndex = closestPrim.refractionIndex;
+
                     //Find new direction for the reflected ray
                     Vector3 intersectNormal = closestPrim.Normal(intersect);
                     intersectNormal.Normalize();
+
                     //Mirror the direction of the ray
                     Vector3 newDirection = ray.direction - 2 * (Vector3.Dot(ray.direction, intersectNormal) * intersectNormal);
 
@@ -134,23 +137,32 @@ namespace template
                     Vector3 reflection = ShootRay(reflectedRay, x, y, ++recursion);
 
                     //Find new direction for the refracted ray
-                    //Calculate the dotproduct between the normal and the incoming ray
-                    float incomingDot = Vector3.Dot(intersectNormal, ray.direction);
-                    //Calculate the incoming angle
-                    float angle = (float)Math.Acos(Vector3.Dot(intersectNormal, ray.direction));
-                    //Calculate the refracted angle using Snell's law
-                    float refractedAngle = (float)Math.Asin((refractionIndex * Math.Sin(angle)) / closestPrim.refractionIndex);
-                    //Refract the direction
-                    float refract = refractionIndex / closestPrim.refractionIndex;
-                    Vector3 refractedRayDir = refract * ray.direction + (float)(refract * Math.Cos(angle) - Math.Cos(refractedAngle)) * intersectNormal;
-                    Ray refractedRay = new Ray(intersect, refractedRayDir);
+                    float incomingTheta = Vector3.Dot(intersectNormal, ray.direction);
+
+                    //if the dotproducte is larger then 1 or smaller then 0 we needed to invert one of the 2 vectors
+                    if (incomingTheta > 1 || incomingTheta < 0)
+                        incomingTheta = -incomingTheta;
+                    
+                    //Calculate the k value mentioned in the slides to check if there is total internal reflection
+                    float k = 1 - ((refractionIndex / primRefractionIndex) * (refractionIndex / primRefractionIndex)) * (1 - (incomingTheta * incomingTheta));
+                    Vector3 T = ((refractionIndex / primRefractionIndex) * ray.direction) + (intersectNormal * (refractionIndex/primRefractionIndex * incomingTheta - (float)Math.Sqrt(k)));
+
+                    //Calculate what part is refracted, in the formula for Fr the refractedangle is picked because with incoming angle the Fr was > 0
+                    float R0 = (refractionIndex - primRefractionIndex) / (refractionIndex + primRefractionIndex);
+                    R0 *= R0;
+                    float Fr = R0 + (1 - R0) * (float)Math.Pow(1 - incomingTheta, 5);
+
+                    //Create the refracted ray
+                    Ray refractedRay = new Ray(intersect, T);
                     refractedRay.ShadowAcneFix(epsilon);
+
                     //Shoot the refracted ray
                     Vector3 refraction = ShootRay(refractedRay, x, y, ++recursion, closestPrim.refractionIndex);
-                    //Calculate what part of the ray is reflected and what part is refracted using the dotproduct and add the respective colours to the total colour
-                    if (incomingDot < 0)
-                        incomingDot = -incomingDot;
-                    finalColour += ((1 - incomingDot) * (closestPrim.dielectric * EntrywiseProduct(reflection, primColour))) + ((incomingDot) * (closestPrim.dielectric * EntrywiseProduct(refraction, primColour)));
+
+                    //Calculate the colours for the refraction and the reflection part
+                    if (k >= 0)
+                        finalColour += ((Fr) * (closestPrim.dielectric * EntrywiseProduct(reflection, primColour))) + ((1 - Fr) * (closestPrim.dielectric * EntrywiseProduct(refraction, primColour)));
+                    else finalColour += closestPrim.dielectric * EntrywiseProduct(reflection, primColour);
                 }
 
                 if (closestPrim.diffuse > 0f)
