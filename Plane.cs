@@ -13,7 +13,7 @@ namespace template
     {
         public Vector3 normal, p1, p2, p3;
         public float d;
-        public Plane(Vector3 p1, Vector3 p2, Vector3 p3, Vector3 colour, float dielectric = 0, float reflective = 0, float refractionIndex = 1.52f) : base(colour, dielectric, reflective, refractionIndex)
+        public Plane(Vector3 p1, Vector3 p2, Vector3 p3, Vector3 colour, Vector3 origin, float dielectric = 0, float reflective = 0, float refractionIndex = 1.52f, float radius = 0) : base(colour, origin, dielectric, reflective, refractionIndex, radius)
         {
             this.p1 = p1;
             this.p2 = p2;

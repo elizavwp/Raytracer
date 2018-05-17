@@ -11,10 +11,9 @@ namespace template
 {
     class Sphere : Primitive
     {
-        Vector3 origin;
-        float radius, r2;
+        float r2;
 
-        public Sphere(float radius, Vector3 origin, Vector3 colour, float dielectric = 0, float reflective = 0, float refractionIndex = 1.52f) : base(colour, dielectric, reflective, refractionIndex)
+        public Sphere(float radius, Vector3 origin, Vector3 colour, float dielectric = 0, float reflective = 0, float refractionIndex = 1.52f) : base(colour, origin, dielectric, reflective, refractionIndex, radius)
         {
             this.origin = origin;
             this.radius = radius;

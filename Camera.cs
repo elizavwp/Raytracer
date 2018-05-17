@@ -22,7 +22,7 @@ namespace template
             fovDist = 1 / (float)Math.Tan(((fov * (Math.PI / 180.0f)) / 2));
             direction = new Vector3(0, 0, -1);
             centre = origin + fovDist * direction;
-            screen = new Plane(centre + new Vector3(-1, -1, 0), centre + new Vector3(1, -1, 0), centre + new Vector3(-1, 1, 0), Vector3.Zero);
+            screen = new Plane(centre + new Vector3(-1, -1, 0), centre + new Vector3(1, -1, 0), centre + new Vector3(-1, 1, 0), Vector3.Zero, Vector3.Zero);
             pixels = new Ray[512, 512];
             PrimaryRays();
         }
@@ -46,7 +46,7 @@ namespace template
             fovDist = 1 / (float)Math.Tan(((fov * (Math.PI / 180.0f)) / 2));
             direction = new Vector3(xRotation, yRotation, -1);
             centre = origin + fovDist * direction;
-            screen = new Plane(centre + new Vector3(-1, -1, 0), centre + new Vector3(1, -1, 0), centre + new Vector3(-1, 1, 0), Vector3.Zero);
+            screen = new Plane(centre + new Vector3(-1, -1, 0), centre + new Vector3(1, -1, 0), centre + new Vector3(-1, 1, 0), Vector3.Zero, Vector3.Zero);
             pixels = new Ray[512, 512];
             PrimaryRays();
         }
