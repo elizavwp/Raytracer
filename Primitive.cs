@@ -13,11 +13,12 @@ namespace template
 {
     abstract class Primitive
     {
-        public Vector3 colour, p1p2, p1p3;
+        public Vector3 colour, p1p2, p1p3, origin;
         public Bitmap texture;
-        public float dielectric, reflective;
-        public Primitive(Vector3 colour, float dielectric = 0, float reflective = 0)
+        public float dielectric, reflective, radius;
+        public Primitive(Vector3 origin, Vector3 colour, float radius, float dielectric = 0, float reflective = 0)
         {
+            this.origin = origin;
             this.colour = colour;
             this.dielectric = dielectric;
             this.reflective = reflective;
