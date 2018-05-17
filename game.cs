@@ -46,11 +46,11 @@ namespace template
 
             //Add Lightsources to the scene
             lights = new List<PointLight>();
-            lights.Add(new PointLight(new Vector3(-10, -10, -1), 0.8f, new Vector3(0.5f, 1, 1)));
-            lights.Add(new PointLight(new Vector3(10, -15, -5), 0.4f, new Vector3(1, 0.5f, 0)));
+            lights.Add(new PointLight(new Vector3(-10, -5, -1), 0.8f, new Vector3(0.5f, 1, 1)));
+            lights.Add(new PointLight(new Vector3(10, -5, -5), 0.4f, new Vector3(1, 0.5f, 0)));
 
             //Colours for the debugrays
-            debugColour = new int[] { 0xffff00, 0xff00ff, 0x00ff00, 0x00ffff, 0xff0000, 0x0000ff, 0x000000, 0x000000 };
+            debugColour = new int[] { 0xffff00, 0xff00ff, 0x00ff00, 0x00ffff, 0xff0000, 0x0000ff, 0xaa00cc, 0xff2299 };
 
             //The List of rays to draw in the debug window
             debugRays = new List<Tuple<Vector3, Vector3, int>>();
@@ -69,7 +69,7 @@ namespace template
                 for (int y = 0; y < camera.pixels.GetLength(1); y++)
                 {
                     //Make sure we only draw an apropriate amount of debugrays
-                    if (y == 255 && x % 30 == 0)
+                    if (y == 255 && x % 10 == 0)
                         debugRay = true;
 
                     screen.pixels[x + y * screen.width] = VectorToInt(ShootRay(camera.pixels[x, y], x, y, 0));
@@ -110,15 +110,15 @@ namespace template
             }
 
             //There is a primitive visible from the pixel draw that primitive
-            if (tClosestPrim < float.MaxValue && recursion <= 6)
+            if (tClosestPrim < float.MaxValue && recursion <= 10)
             {
 
                 //Intersection Point
                 intersect = ray.FindPoint(tClosestPrim);
 
-                //Draw this ray in the debug window
-                if (debugRay && closestPrim.GetType() == typeof(Sphere))
-                    debugRays.Add(new Tuple<Vector3, Vector3, int>(camera.origin, intersect, debugColour[recursion]));
+                //Draw this ray in the debug window, to be sure we don't draw to much rays, we cap the recursion of the rays we draw to 7
+                if (debugRay && closestPrim.GetType() == typeof(Sphere) && recursion <= 6)
+                    debugRays.Add(new Tuple<Vector3, Vector3, int>(ray.origin, intersect, debugColour[recursion]));
 
                 //Check wether the primitive is reflective
                 if (closestPrim.reflective > 0f)
@@ -224,7 +224,7 @@ namespace template
                         else
                         {
                             //Draw this shadowray in the debug window
-                            if (debugRay)
+                            if (debugRay && closestPrim.GetType() == typeof(Sphere) && recursion <= 6)
                                 debugRays.Add(new Tuple<Vector3, Vector3, int>(intersect, light.origin, debugColour[recursion]));
 
                             //Distance attenuation
@@ -273,8 +273,6 @@ namespace template
 
             foreach (Tuple<Vector3, Vector3, int> r in debugRays)
             {
-                if (r.Item3 != debugColour[0])
-                    continue;
                 Vector2 rOrigin = (r.Item1.Xz);
                 Vector2 relativeOrigin = 10 * rOrigin + cameraDebug;
                 Vector2 rEnd = (r.Item2.Xz);
