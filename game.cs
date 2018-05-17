@@ -107,12 +107,14 @@ namespace template
                     //Find new direction for the reflected ray
                     Vector3 intersectNormal = closestPrim.Normal(intersect);
                     intersectNormal.Normalize();
+                    //Mirror the direction of the ray
                     Vector3 newDirection = ray.direction - 2 * (Vector3.Dot(ray.direction, intersectNormal) * intersectNormal);
 
                     //Shoot reflection ray
                     Ray reflectedRay = new Ray(intersect, newDirection);
                     reflectedRay.ShadowAcneFix(epsilon);
                     Vector3 primColour = closestPrim.colour;
+                    //Shoot the reflected ray and add it's colour to the final colour
                     Vector3 reflectionRay = ShootRay(reflectedRay, x, y, ++recursion);
                     finalColour += reflection * (EntrywiseProduct(reflectionRay, primColour));
                 }
@@ -122,6 +124,7 @@ namespace template
                     //Find new direction for the reflected ray
                     Vector3 intersectNormal = closestPrim.Normal(intersect);
                     intersectNormal.Normalize();
+                    //Mirror the direction of the ray
                     Vector3 newDirection = ray.direction - 2 * (Vector3.Dot(ray.direction, intersectNormal) * intersectNormal);
 
                     //Shoot reflection ray
@@ -131,14 +134,20 @@ namespace template
                     Vector3 reflection = ShootRay(reflectedRay, x, y, ++recursion);
 
                     //Find new direction for the refracted ray
-                    float incomingDot = refractionIndex != 1.0f ? -Vector3.Dot(intersectNormal, ray.direction) : Vector3.Dot(intersectNormal, ray.direction);
+                    //Calculate the dotproduct between the normal and the incoming ray
+                    float incomingDot = Vector3.Dot(intersectNormal, ray.direction);
+                    //Calculate the incoming angle
                     float angle = (float)Math.Acos(Vector3.Dot(intersectNormal, ray.direction));
+                    //Calculate the refracted angle using Snell's law
                     float refractedAngle = (float)Math.Asin((refractionIndex * Math.Sin(angle)) / closestPrim.refractionIndex);
+                    //Refract the direction
                     float refract = refractionIndex / closestPrim.refractionIndex;
                     Vector3 refractedRayDir = refract * ray.direction + (float)(refract * Math.Cos(angle) - Math.Cos(refractedAngle)) * intersectNormal;
                     Ray refractedRay = new Ray(intersect, refractedRayDir);
                     refractedRay.ShadowAcneFix(epsilon);
+                    //Shoot the refracted ray
                     Vector3 refraction = ShootRay(refractedRay, x, y, ++recursion, closestPrim.refractionIndex);
+                    //Calculate what part of the ray is reflected and what part is refracted using the dotproduct and add the respective colours to the total colour
                     if (incomingDot < 0)
                         incomingDot = -incomingDot;
                     finalColour += ((1 - incomingDot) * (closestPrim.dielectric * EntrywiseProduct(reflection, primColour))) + ((incomingDot) * (closestPrim.dielectric * EntrywiseProduct(refraction, primColour)));
