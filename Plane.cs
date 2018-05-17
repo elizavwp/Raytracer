@@ -18,8 +18,8 @@ namespace template
             this.p1 = p1;
             this.p2 = p2;
             this.p3 = p3;
-            Vector3 p1p2 = new Vector3(p1.X - p2.X, p1.Y - p2.Y, p1.Z - p2.Z);
-            Vector3 p1p3 = new Vector3(p1.X - p3.X, p1.Y - p3.Y, p1.Z - p3.Z);
+            Vector3 p1p2 = p1 - p2;
+            Vector3 p1p3 = p1 - p3;
 
             normal = Vector3.Cross(p1p2, p1p3);
             normal.Normalize();

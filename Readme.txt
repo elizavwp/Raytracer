@@ -1,5 +1,5 @@
 Bart Broekman: 5657679
-Eliza:
+Eliza van Wulfften Palthe: 5617561
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -17,9 +17,11 @@ Camera controls:
 
 Extra assignments:
 - A HDR textured skydome
+- Refraction and absorption
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 Material used:
 - Slides from the lectures
-- For the calculation of the direction of the refracted ray: https://en.wikipedia.org/wiki/Snell%27s_law
+- Flood-fill algorithm for the debugscreen: https://en.wikipedia.org/wiki/Flood_fill
+
