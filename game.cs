@@ -37,7 +37,7 @@ namespace template
             primitives.Add(new Sphere(3, new Vector3(-1.5f, -2, -13), new Vector3(0.1f, 1f, 0.1f)));
             primitives.Add(new Sphere(1, new Vector3(3, 0, -8), new Vector3(1f, 0.7f, 0.7f), 0, 0.8f));
             primitives.Add(new Sphere(8, new Vector3(11, -7, -23), new Vector3(0.9f, 0.4f, 1f)));
-            primitives.Add(new Sphere(1, new Vector3(-1, 0, -8), new Vector3(1), 0.6f));// new Vector3(0.3f, 0.9f, 0.9f)));
+            primitives.Add(new Sphere(1, new Vector3(-1, 0, -8), new Vector3(1), 0.99f));// new Vector3(0.3f, 0.9f, 0.9f)));
             primitives.Add(new Sphere(0.5f, new Vector3(0, 0.5f, -4), new Vector3(1f, 1f, 1f)));
 
             //Add Lightsources to the scene
@@ -131,6 +131,7 @@ namespace template
                     Vector3 reflection = ShootRay(reflectedRay, x, y, ++recursion);
 
                     //Find new direction for the refracted ray
+                    float incomingDot = refractionIndex != 1.0f ? -Vector3.Dot(intersectNormal, ray.direction) : Vector3.Dot(intersectNormal, ray.direction);
                     float angle = (float)Math.Acos(Vector3.Dot(intersectNormal, ray.direction));
                     float refractedAngle = (float)Math.Asin((refractionIndex * Math.Sin(angle)) / closestPrim.refractionIndex);
                     float refract = refractionIndex / closestPrim.refractionIndex;
@@ -138,7 +139,9 @@ namespace template
                     Ray refractedRay = new Ray(intersect, refractedRayDir);
                     refractedRay.ShadowAcneFix(epsilon);
                     Vector3 refraction = ShootRay(refractedRay, x, y, ++recursion, closestPrim.refractionIndex);
-                    finalColour += /*0.1f * (closestPrim.dielectric * EntrywiseProduct(reflection, primColour)) + 0.9f * */(closestPrim.dielectric * EntrywiseProduct(refraction, primColour));
+                    if (incomingDot < 0)
+                        incomingDot = -incomingDot;
+                    finalColour += ((1 - incomingDot) * (closestPrim.dielectric * EntrywiseProduct(reflection, primColour))) + ((incomingDot) * (closestPrim.dielectric * EntrywiseProduct(refraction, primColour)));
                 }
 
                 if (closestPrim.diffuse > 0f)
