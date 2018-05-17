@@ -11,10 +11,9 @@ namespace template
 {
     class Sphere : Primitive
     {
-        Vector3 origin;
-        float radius, r2;
+        float r2;
 
-        public Sphere(float radius, Vector3 origin, Vector3 colour, float dielectric = 0, float reflective = 0) : base(colour, dielectric, reflective)
+        public Sphere(float radius, Vector3 origin, Vector3 colour, float dielectric = 0, float reflective = 0, float refractionIndex = 1.52f) : base(colour, origin, dielectric, reflective, refractionIndex, radius)
         {
             this.origin = origin;
             this.radius = radius;
@@ -27,8 +26,16 @@ namespace template
             //If the ray starts within the sphere, we use different code
             if ((((ray.origin.X - origin.X) * (ray.origin.X - origin.X)) + ((ray.origin.Y - origin.Y) * (ray.origin.Y - origin.Y)) + ((ray.origin.Z - origin.Z) * (ray.origin.Z - origin.Z))) < r2)
             {
-                //Needs to be edited
-                return 0.0001f;
+                float b = Vector3.Dot(2 * ray.direction, (ray.origin - origin)), c = Vector3.Dot((ray.origin - origin), (ray.origin - origin)) - r2;
+                float d = b * b - 4 * c;
+
+                if (d < 0)
+                    return 0.0001f;
+                else
+                {
+                    float t = (-b + (float)Math.Sqrt(d)) / 2;
+                    return t;
+                }
             }
 
             else
@@ -45,7 +52,7 @@ namespace template
             }
         }
 
-        public override Vector3 Normal(Vector3 point)
+        public override Vector3 Normal (Vector3 point)
         {
             return ((point - origin).Normalized());
         }

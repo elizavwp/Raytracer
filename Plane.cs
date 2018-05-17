@@ -13,24 +13,18 @@ namespace template
     {
         public Vector3 normal, p1, p2, p3;
         public float d;
-        public Plane(Vector3 p1, Vector3 p2, Vector3 p3, Vector3 colour, float dielectric = 0, float reflective = 0) : base(colour, dielectric, reflective)
+        public Plane(Vector3 p1, Vector3 p2, Vector3 p3, Vector3 colour, Vector3 origin, float dielectric = 0, float reflective = 0, float refractionIndex = 1.52f, float radius = 0) : base(colour, origin, dielectric, reflective, refractionIndex, radius)
         {
             this.p1 = p1;
             this.p2 = p2;
             this.p3 = p3;
-            Vector3 p1p2 = new Vector3(p1.X - p2.X, p1.Y - p2.Y, p1.Z - p2.Z);
-            Vector3 p1p3 = new Vector3(p1.X - p3.X, p1.Y - p3.Y, p1.Z - p3.Z);
+            Vector3 p1p2 = p1 - p2;
+            Vector3 p1p3 = p1 - p3;
 
             normal = Vector3.Cross(p1p2, p1p3);
             normal.Normalize();
 
             d = -(Vector3.Dot(p1, normal));
-        }
-
-        public Plane(Vector3 normal, float d, Vector3 colour, float dielectric = 0, float reflective = 0) : base(colour, dielectric, reflective)
-        {
-            this.normal = normal;
-            this.d = d;
         }
 
         public override float Intersect(Ray ray)
