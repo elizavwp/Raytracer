@@ -14,7 +14,7 @@ namespace template
         Vector3 origin;
         float radius, r2;
 
-        public Sphere(float radius, Vector3 origin, Vector3 colour, float glass = 0.0f, float reflective = 0.0f) : base(colour, glass, reflective)
+        public Sphere(float radius, Vector3 origin, Vector3 colour, float dielectric = 0, float reflective = 0) : base(colour, dielectric, reflective)
         {
             this.origin = origin;
             this.radius = radius;
@@ -45,9 +45,14 @@ namespace template
             }
         }
 
-        public override Vector3 Normal (Vector3 point)
+        public override Vector3 Normal(Vector3 point)
         {
             return ((point - origin).Normalized());
+        }
+
+        public override Vector3 Normal()
+        {
+            return Vector3.Zero;
         }
     }
 }
