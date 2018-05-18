@@ -43,7 +43,7 @@ namespace template
             primitives.Add(new Sphere(8, new Vector3(11, -7, -23), new Vector3(0.9f, 0.4f, 1f)));
             primitives.Add(new Sphere(1, new Vector3(-1, 0, -5.5f), new Vector3(0.5f, 1f, 1f), 1f, 0, 1.52f));
             primitives.Add(new Sphere(0.5f, new Vector3(0, 0.5f, -4), new Vector3(1f, 1f, 1f)));
-            primitives.Add(new Triangle(new Vector3(-10, -10, -20), new Vector3(-10, 0, -30), new Vector3(-20, 0, -20), new Vector3(1), Vector3.Zero));
+            primitives.Add(new Triangle(new Vector3(-10, -10, -20), new Vector3(-10, 0, -30), new Vector3(-20, 0, -20), new Vector3(1, 0.5f, 1), Vector3.Zero));
 
             //Add Lightsources to the scene
             lights = new List<PointLight>();
@@ -312,15 +312,13 @@ namespace template
                         screen.pixels[x + y * screen.width] = VectorToInt(p.colour);
                     }
                 }
-                else if (p.Normal().Y != 1 || p.Normal().Y != -1)
+                else
                 {
-                    //Will be added if we have any other plane then the floor plane
-                    //continue;
                     Vector2 p1 = 10 * p.p1.Xz + cameraDebug, p2 = 10 * p.p2.Xz + cameraDebug, p3 = 10 * p.p3.Xz + cameraDebug;
 
-                    screen.Line((int)p1.X, (int)p1.Y, (int)p2.X, (int)p2.Y, 0xffffff);
-                    screen.Line((int)p1.X, (int)p1.Y, (int)p3.X, (int)p3.Y, 0xffffff);
-                    screen.Line((int)p3.X, (int)p3.Y, (int)p2.X, (int)p2.Y, 0xffffff);
+                    screen.Line((int)p1.X, (int)p1.Y, (int)p2.X, (int)p2.Y, VectorToInt(p.colour));
+                    screen.Line((int)p1.X, (int)p1.Y, (int)p3.X, (int)p3.Y, VectorToInt(p.colour));
+                    screen.Line((int)p3.X, (int)p3.Y, (int)p2.X, (int)p2.Y, VectorToInt(p.colour));
                 }
             }
 
