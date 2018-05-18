@@ -43,11 +43,12 @@ namespace template
             primitives.Add(new Sphere(8, new Vector3(11, -7, -23), new Vector3(0.9f, 0.4f, 1f)));
             primitives.Add(new Sphere(1, new Vector3(-1, 0, -5.5f), new Vector3(0.5f, 1f, 1f), 1f, 0, 1.52f));
             primitives.Add(new Sphere(0.5f, new Vector3(0, 0.5f, -4), new Vector3(1f, 1f, 1f)));
+            primitives.Add(new Triangle(new Vector3(-10, -15, -20), new Vector3(-10, -5, -30), new Vector3(-20, -5, -20), new Vector3(1), Vector3.Zero));
 
             //Add Lightsources to the scene
             lights = new List<PointLight>();
             lights.Add(new PointLight(new Vector3(-10, -5, -1), 0.8f, new Vector3(0.5f, 1, 1)));
-            lights.Add(new PointLight(new Vector3(10, -5, -5), 0.4f, new Vector3(1, 0.5f, 0)));
+            lights.Add(new PointLight(new Vector3(10, -5, -5), 0.4f, new Vector3(1, 0.8f, 0)));
 
             //Colours for the debugrays
             debugColour = new int[] { 0xffff00, 0xff00ff, 0x00ff00, 0x00ffff, 0xff0000, 0x0000ff, 0xaa00cc, 0xff2299 };
@@ -269,7 +270,7 @@ namespace template
 
         public void DebugScreen(List<Primitive> primitives, List<PointLight> lights, Camera camera, List<Tuple<Vector3, Vector3, int>> debugRays)
         {
-            cameraDebug = new Vector2(768, 400) + (10 * camera.origin.Xz);
+            cameraDebug = new Vector2(768, 400);
 
             foreach (Tuple<Vector3, Vector3, int> r in debugRays)
             {
@@ -314,12 +315,17 @@ namespace template
                 else if (p.Normal().Y != 1 || p.Normal().Y != -1)
                 {
                     //Will be added if we have any other plane then the floor plane
-                    continue;
+                    //continue;
+                    Vector2 p1 = 10 * p.p1.Xz + cameraDebug, p2 = 10 * p.p2.Xz + cameraDebug, p3 = 10 * p.p3.Xz + cameraDebug;
+
+                    screen.Line((int)p1.X, (int)p1.Y, (int)p2.X, (int)p2.Y, 0xffffff);
+                    screen.Line((int)p1.X, (int)p1.Y, (int)p3.X, (int)p3.Y, 0xffffff);
+                    screen.Line((int)p3.X, (int)p3.Y, (int)p2.X, (int)p2.Y, 0xffffff);
                 }
             }
 
 
-            screen.pixels[(int)cameraDebug.X + (int)cameraDebug.Y * screen.width] = 0xffffff;
+            screen.pixels[(int)(cameraDebug.X + (10 * camera.origin.X)) + (int)(cameraDebug.Y + (10 * camera.origin.Z)) * screen.width] = 0xffffff;
             screen.Line((int)cameraDebug.X + (10 * (int)camera.screen.p1.X), (int)cameraDebug.Y + (10 * (int)camera.screen.p1.Z), (int)cameraDebug.X + (10 * (int)camera.screen.p2.X), (int)cameraDebug.Y + (10 * (int)camera.screen.p2.Z), 0xffffff);
 
         }

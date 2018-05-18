@@ -13,7 +13,7 @@ namespace template
 {
     abstract class Primitive
     {
-        public Vector3 colour, p1p2, p1p3, origin;
+        public Vector3 colour, p1p2, p1p3, origin, p1, p2, p3;
         public Bitmap texture;
         public float dielectric, reflective, refractionIndex, diffuse, radius;
         public Primitive(Vector3 colour, Vector3 origin, float dielectric = 0, float reflective = 0, float refractionIndex = 1.52f, float radius = 0f)

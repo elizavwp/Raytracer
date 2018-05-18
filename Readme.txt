@@ -16,6 +16,7 @@ Camera controls:
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 Extra assignments:
+- Triangles
 - A HDR textured skydome
 - Refraction and absorption
 
@@ -23,5 +24,5 @@ Extra assignments:
 
 Material used:
 - Slides from the lectures
-- Flood-fill algorithm for the debugscreen: https://en.wikipedia.org/wiki/Flood_fill
+- The code for intersections with triangles: https://en.wikipedia.org/wiki/M%C3%B6ller%E2%80%93Trumbore_intersection_algorithm
 
