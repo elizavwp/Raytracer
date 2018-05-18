@@ -21,8 +21,9 @@ namespace template
         public List<PointLight> lights;
         public List<Tuple<Vector3, Vector3, int>> debugRays;
         public bool debugRay = false;
-        public Vector2 cameraDebug;
+        public Vector2 relativeDebug;
         public int[] debugColour;
+        public int recursionMax = 10, debugRecusrionMax = 6;
 
         // variables for the camera movement
         float x, y, z, yRotation, xRotation, newFov = 90;
@@ -54,17 +55,14 @@ namespace template
             debugColour = new int[] { 0xffff00, 0xff00ff, 0x00ff00, 0x00ffff, 0xff0000, 0x0000ff, 0xaa00cc, 0xff2299 };
 
             //The List of rays to draw in the debug window
-            debugRays = new List<Tuple<Vector3, Vector3, int>>();
-
+            debugRays = new List<Tuple<Vector3, Vector3, int>>();            
         }
         // tick: renders one frame
         public void Tick()
         {
             CheckMovement();
-
             screen.Clear(0);
             screen.Line(512, 0, 512, 512, 0xffffff);
-
             //Shoot rays
             for (int x = 0; x < camera.pixels.GetLength(0); x++)
                 for (int y = 0; y < camera.pixels.GetLength(1); y++)
@@ -79,6 +77,9 @@ namespace template
                 }
 
             screen.Print("FOV = " + camera.fov, 517, 5, 0xffffff);
+            screen.Print("Camera Position  = " + camera.origin.X + "; " + camera.origin.Y + "; " + camera.origin.Z + ";", 517, 25, 0xffffff);
+            screen.Print("Camera Direction = " + camera.direction.X + "; " + camera.direction.Y + "; " + camera.direction.Z + ";", 517, 45, 0xffffff);
+            screen.Print("Recursion = " + recursionMax + "; Debug recursion = " + debugRecusrionMax + ";", 517, 65, 0xffffff);
 
             DebugScreen(primitives, lights, camera, debugRays);
             debugRays.Clear();
@@ -111,14 +112,14 @@ namespace template
             }
 
             //There is a primitive visible from the pixel draw that primitive
-            if (tClosestPrim < float.MaxValue && recursion <= 10)
+            if (tClosestPrim < float.MaxValue && recursion <= recursionMax)
             {
 
                 //Intersection Point
                 intersect = ray.FindPoint(tClosestPrim);
 
                 //Draw this ray in the debug window, to be sure we don't draw to much rays, we cap the recursion of the rays we draw to 7
-                if (debugRay && (closestPrim.GetType() == typeof(Sphere) || closestPrim.GetType() == typeof(Triangle)) && recursion <= 6)
+                if (debugRay && (closestPrim.GetType() == typeof(Sphere) || closestPrim.GetType() == typeof(Triangle)) && recursion <= debugRecusrionMax)
                     debugRays.Add(new Tuple<Vector3, Vector3, int>(ray.origin, intersect, debugColour[recursion]));
 
                 //Check wether the primitive is reflective
@@ -225,7 +226,7 @@ namespace template
                         else
                         {
                             //Draw this shadowray in the debug window
-                            if (debugRay && (closestPrim.GetType() == typeof(Sphere) || closestPrim.GetType() == typeof(Triangle)) && recursion <= 6)
+                            if (debugRay && (closestPrim.GetType() == typeof(Sphere) || closestPrim.GetType() == typeof(Triangle)) && recursion <= debugRecusrionMax)
                                 debugRays.Add(new Tuple<Vector3, Vector3, int>(intersect, light.origin, debugColour[recursion]));
 
                             //Distance attenuation
@@ -270,14 +271,14 @@ namespace template
 
         public void DebugScreen(List<Primitive> primitives, List<PointLight> lights, Camera camera, List<Tuple<Vector3, Vector3, int>> debugRays)
         {
-            cameraDebug = new Vector2(768, 400);
+            relativeDebug = new Vector2(768, 400);
 
             foreach (Tuple<Vector3, Vector3, int> r in debugRays)
             {
                 Vector2 rOrigin = (r.Item1.Xz);
-                Vector2 relativeOrigin = 10 * rOrigin + cameraDebug;
+                Vector2 relativeOrigin = 10 * rOrigin + relativeDebug;
                 Vector2 rEnd = (r.Item2.Xz);
-                Vector2 relativeEnd = 10 * rEnd + cameraDebug;
+                Vector2 relativeEnd = 10 * rEnd + relativeDebug;
 
                 screen.Line((int)relativeOrigin.X, (int)relativeOrigin.Y, (int)relativeEnd.X, (int)relativeEnd.Y, r.Item3);
 
@@ -287,7 +288,7 @@ namespace template
             {
 
                 Vector2 lOrigin = l.origin.Xz;
-                Vector2 relativeOrigin = 10 * lOrigin + cameraDebug;
+                Vector2 relativeOrigin = 10 * lOrigin + relativeDebug;
 
                 for (float i = 0; i < 360; i++)
                 {
@@ -303,7 +304,7 @@ namespace template
                 if (p.GetType() == typeof(Sphere))
                 {
                     Vector2 pOrigin = p.origin.Xz;
-                    Vector2 relativeOrigin = 10 * pOrigin + cameraDebug;
+                    Vector2 relativeOrigin = 10 * pOrigin + relativeDebug;
 
                     for (float i = 0; i < 360; i++)
                     {
@@ -314,7 +315,7 @@ namespace template
                 }
                 else
                 {
-                    Vector2 p1 = 10 * p.p1.Xz + cameraDebug, p2 = 10 * p.p2.Xz + cameraDebug, p3 = 10 * p.p3.Xz + cameraDebug;
+                    Vector2 p1 = 10 * p.p1.Xz + relativeDebug, p2 = 10 * p.p2.Xz + relativeDebug, p3 = 10 * p.p3.Xz + relativeDebug;
 
                     screen.Line((int)p1.X, (int)p1.Y, (int)p2.X, (int)p2.Y, VectorToInt(p.colour));
                     screen.Line((int)p1.X, (int)p1.Y, (int)p3.X, (int)p3.Y, VectorToInt(p.colour));
@@ -323,15 +324,14 @@ namespace template
             }
 
 
-            screen.pixels[(int)(cameraDebug.X + (10 * camera.origin.X)) + (int)(cameraDebug.Y + (10 * camera.origin.Z)) * screen.width] = 0xffffff;
-            screen.Line((int)cameraDebug.X + (10 * (int)camera.screen.p1.X), (int)cameraDebug.Y + (10 * (int)camera.screen.p1.Z), (int)cameraDebug.X + (10 * (int)camera.screen.p2.X), (int)cameraDebug.Y + (10 * (int)camera.screen.p2.Z), 0xffffff);
+            screen.pixels[(int)(relativeDebug.X + (10 * camera.origin.X)) + (int)(relativeDebug.Y + (10 * camera.origin.Z)) * screen.width] = 0xffffff;
+            screen.Line((int)relativeDebug.X + (10 * (int)camera.screen.p1.X), (int)relativeDebug.Y + (10 * (int)camera.screen.p1.Z), (int)relativeDebug.X + (10 * (int)camera.screen.p2.X), (int)relativeDebug.Y + (10 * (int)camera.screen.p2.Z), 0xffffff);
 
         }
 
         public void CheckMovement()
         {
             keyPressed = false;
-
             if (Keyboard.GetState().IsKeyDown(Key.Space))
             {
                 keyPressed = true;
