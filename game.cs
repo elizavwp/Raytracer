@@ -43,7 +43,7 @@ namespace template
             primitives.Add(new Sphere(8, new Vector3(11, -7, -23), new Vector3(0.9f, 0.4f, 1f)));
             primitives.Add(new Sphere(1, new Vector3(-1, 0, -5.5f), new Vector3(0.5f, 1f, 1f), 1f, 0, 1.52f));
             primitives.Add(new Sphere(0.5f, new Vector3(0, 0.5f, -4), new Vector3(1f, 1f, 1f)));
-            primitives.Add(new Triangle(new Vector3(-10, -15, -20), new Vector3(-10, -5, -30), new Vector3(-20, -5, -20), new Vector3(1), Vector3.Zero));
+            primitives.Add(new Triangle(new Vector3(-10, -10, -20), new Vector3(-10, 0, -30), new Vector3(-20, 0, -20), new Vector3(1), Vector3.Zero));
 
             //Add Lightsources to the scene
             lights = new List<PointLight>();
@@ -118,7 +118,7 @@ namespace template
                 intersect = ray.FindPoint(tClosestPrim);
 
                 //Draw this ray in the debug window, to be sure we don't draw to much rays, we cap the recursion of the rays we draw to 7
-                if (debugRay && closestPrim.GetType() == typeof(Sphere) && recursion <= 6)
+                if (debugRay && (closestPrim.GetType() == typeof(Sphere) || closestPrim.GetType() == typeof(Triangle)) && recursion <= 6)
                     debugRays.Add(new Tuple<Vector3, Vector3, int>(ray.origin, intersect, debugColour[recursion]));
 
                 //Check wether the primitive is reflective
@@ -225,7 +225,7 @@ namespace template
                         else
                         {
                             //Draw this shadowray in the debug window
-                            if (debugRay && closestPrim.GetType() == typeof(Sphere) && recursion <= 6)
+                            if (debugRay && (closestPrim.GetType() == typeof(Sphere) || closestPrim.GetType() == typeof(Triangle)) && recursion <= 6)
                                 debugRays.Add(new Tuple<Vector3, Vector3, int>(intersect, light.origin, debugColour[recursion]));
 
                             //Distance attenuation
