@@ -17,8 +17,12 @@ Camera controls:
 
 Extra assignments:
 - Triangles
-- A HDR textured skydome
-- Refraction and absorption
+- A HDR textured skydome: The implementation is at the bottom of the ShootRay() method, if there is no
+			  intersection found with a primitive we draw the skybox.
+- Refraction and absorption: The implementation can be found in the ShootRay() method, between the
+			     if-statement for a reflective surface and a diffuse surface, just as
+			     with a reflective surface you give a value between 0...1 for the
+			     percantage of how dielectric a primitive is.
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
