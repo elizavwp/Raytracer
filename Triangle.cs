@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using OpenTK;
-using OpenTK.Graphics;
-using OpenTK.Graphics.OpenGL;
+﻿using OpenTK;
 
 namespace template
 {
@@ -13,7 +6,9 @@ namespace template
     {
         public Vector3 normal;
         public float d;
-        public Triangle(Vector3 p1, Vector3 p2, Vector3 p3, Vector3 colour, Vector3 origin, float dielectric = 0, float reflective = 0, float refractionIndex = 1.52f, float radius = 0) : base(colour, origin, dielectric, reflective, refractionIndex, radius)
+
+        //A triangle is made using it's three corners
+        public Triangle(Vector3 p1, Vector3 p2, Vector3 p3, Vector3 colour, float dielectric = 0, float reflective = 0, float refractionIndex = 1.52f) : base(colour, dielectric, reflective, refractionIndex)
         {
             this.p1 = p1;
             this.p2 = p2;
@@ -27,6 +22,7 @@ namespace template
             d = -(Vector3.Dot(p1, normal));
         }
 
+        //Find the intersection point of the traingle and a ray using the Möller-Trumbore intersection algorithm
         public override float Intersect(Ray ray)
         {
             Vector3 h = Vector3.Cross(ray.direction, p1p3);
@@ -54,15 +50,10 @@ namespace template
             return t;
         }
         
+        //The normal for a triangle is the same for every point so we disregard the given point
         public override Vector3 Normal(Vector3 point)
         {
             return normal;
         }
-
-        public override Vector3 Normal()
-        {
-            return normal;
-        }
-
     }
 }

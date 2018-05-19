@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using OpenTK;
-using OpenTK.Graphics;
-using OpenTK.Graphics.OpenGL;
+﻿using OpenTK;
 
 namespace template
 {
@@ -14,6 +7,7 @@ namespace template
         public Vector3 origin, colour;
         public float brightness;
 
+        //A point light has an origin a brightness and a colour
         public PointLight(Vector3 origin, float brightness, Vector3 colour)
         {
             this.origin = origin;

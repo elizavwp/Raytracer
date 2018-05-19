@@ -1,13 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Drawing;
-using System.Drawing.Imaging;
+﻿using System.Drawing;
 using OpenTK;
-using OpenTK.Graphics;
-using OpenTK.Graphics.OpenGL;
 
 namespace template
 {
@@ -16,7 +8,10 @@ namespace template
         public Vector3 colour, p1p2, p1p3, origin, p1, p2, p3;
         public Bitmap texture;
         public float dielectric, reflective, refractionIndex, diffuse, radius;
-        public Primitive(Vector3 colour, Vector3 origin, float dielectric = 0, float reflective = 0, float refractionIndex = 1.52f, float radius = 0f)
+
+        //Each primitive has a colour and percentages for how dielectric, reflective and diffuse it is, and a refraction index if it is dielectric
+        //The other variables (origin and radius, p1, p2, p3, p1p2, p1p3 and texture) are used when we acces (for instance) a sphere as a primitive
+        public Primitive(Vector3 colour, float dielectric = 0, float reflective = 0, float refractionIndex = 1.52f)
         {
             this.colour = colour;
             this.dielectric = dielectric;
@@ -28,7 +23,6 @@ namespace template
         public abstract float Intersect(Ray ray);
 
         public abstract Vector3 Normal(Vector3 point);
-        public abstract Vector3 Normal();
 
     }
 }

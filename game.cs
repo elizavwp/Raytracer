@@ -1,13 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Drawing;
-using System.Drawing.Imaging;
 using OpenTK;
 using OpenTK.Graphics;
-using OpenTK.Graphics.OpenGL;
 using OpenTK.Input;
 namespace template
 {
@@ -38,13 +33,13 @@ namespace template
 
             //Add primitives to the scene
             primitives = new List<Primitive>();
-            primitives.Add(new TexturedPlane(new Vector3(1, 0, 0), new Vector3(0, 0, -1), new Vector3(0, -1, 0), 1, new Vector3(1), Vector3.Zero, "../../assets/tiles.png", 0, 0.2f));
+            primitives.Add(new TexturedPlane(new Vector3(1, 0, 0), new Vector3(0, 0, -1), new Vector3(0, -1, 0), 1, new Vector3(1), "../../assets/tiles.png", 0, 0.2f));
             primitives.Add(new Sphere(3, new Vector3(-1.5f, -2, -13), new Vector3(0.1f, 1f, 0.1f)));
             primitives.Add(new Sphere(1, new Vector3(3, 0, -8), new Vector3(1f, 0.7f, 0.7f), 0, 0.8f));
             primitives.Add(new Sphere(8, new Vector3(11, -7, -23), new Vector3(0.9f, 0.4f, 1f)));
             primitives.Add(new Sphere(1, new Vector3(-1, 0, -5.5f), new Vector3(0.5f, 1f, 1f), 1f, 0, 1.52f));
             primitives.Add(new Sphere(0.5f, new Vector3(0, 0.5f, -4), new Vector3(1f, 1f, 1f)));
-            primitives.Add(new Triangle(new Vector3(-10, -10, -20), new Vector3(-10, 0, -30), new Vector3(-20, 0, -20), new Vector3(1, 0.5f, 1), Vector3.Zero));
+            primitives.Add(new Triangle(new Vector3(-10, -10, -20), new Vector3(-10, 0, -30), new Vector3(-20, 0, -20), new Vector3(1, 0.5f, 1)));
 
             //Add Lightsources to the scene
             lights = new List<PointLight>();
@@ -60,9 +55,13 @@ namespace template
         // tick: renders one frame
         public void Tick()
         {
+            //Check if there are keys pressed
             CheckMovement();
+
+            //Clear the screen and draw a line between the debugscreen and the raytracer
             screen.Clear(0);
             screen.Line(512, 0, 512, 512, 0xffffff);
+
             //Shoot rays
             for (int x = 0; x < camera.pixels.GetLength(0); x++)
                 for (int y = 0; y < camera.pixels.GetLength(1); y++)
@@ -76,11 +75,13 @@ namespace template
                     debugRay = false;
                 }
 
+            //Write suitable information on the screen
             screen.Print("FOV = " + camera.fov, 517, 5, 0xffffff);
             screen.Print("Camera Position  = " + camera.origin.X + "; " + camera.origin.Y + "; " + camera.origin.Z + ";", 517, 25, 0xffffff);
             screen.Print("Camera Direction = " + camera.direction.X + "; " + camera.direction.Y + "; " + camera.direction.Z + ";", 517, 45, 0xffffff);
             screen.Print("Recursion = " + recursionMax + "; Debug recursion = " + debugRecusrionMax + ";", 517, 65, 0xffffff);
 
+            //Draw the debugscreen
             DebugScreen(primitives, lights, camera, debugRays);
             debugRays.Clear();
         }
@@ -90,7 +91,7 @@ namespace template
             Ray shadowRay;
             Vector3 intersect, shadowRayDir, eIncoming, eReflected, textureColour, finalColour;
             Vector2 textureLocation;
-            Primitive closestPrim = new Plane(Vector3.Zero, Vector3.Zero, Vector3.Zero, Vector3.Zero, Vector3.Zero);
+            Primitive closestPrim = new Plane(Vector3.Zero, Vector3.Zero, Vector3.Zero, Vector3.Zero);
             float t, tClosestPrim = float.MaxValue, shadowT, shadowPrimT, epsilon = 0.001f, lightBrightness;
             bool occluder = false;
             textureLocation = Vector2.Zero;
@@ -130,6 +131,7 @@ namespace template
                     //Find new direction for the reflected ray
                     Vector3 intersectNormal = closestPrim.Normal(intersect);
                     intersectNormal.Normalize();
+
                     //Mirror the direction of the ray
                     Vector3 newDirection = ray.direction - 2 * (Vector3.Dot(ray.direction, intersectNormal) * intersectNormal);
 
@@ -137,6 +139,7 @@ namespace template
                     Ray reflectedRay = new Ray(intersect, newDirection);
                     reflectedRay.ShadowAcneFix(epsilon);
                     Vector3 primColour = closestPrim.colour;
+
                     //Shoot the reflected ray and add it's colour to the final colour
                     Vector3 reflectionRay = ShootRay(reflectedRay, x, y, ++recursion);
                     finalColour += reflection * (EntrywiseProduct(reflectionRay, primColour));
@@ -182,7 +185,7 @@ namespace template
                     //Shoot the refracted ray
                     Vector3 refraction = ShootRay(refractedRay, x, y, ++recursion, closestPrim.refractionIndex);
 
-                    //Calculate the colours for the refraction and the reflection part
+                    //Calculate the colours for the refraction and the reflection part; if k >= 0 we have total internal reflection
                     if (k >= 0)
                         finalColour += ((Fr) * (closestPrim.dielectric * EntrywiseProduct(reflection, primColour))) + ((1 - Fr) * (closestPrim.dielectric * EntrywiseProduct(refraction, primColour)));
                     else finalColour += closestPrim.dielectric * EntrywiseProduct(reflection, primColour);
@@ -275,6 +278,7 @@ namespace template
 
             foreach (Tuple<Vector3, Vector3, int> r in debugRays)
             {
+                //Find the realive coordinates for the rays and draw them
                 Vector2 rOrigin = (r.Item1.Xz);
                 Vector2 relativeOrigin = 10 * rOrigin + relativeDebug;
                 Vector2 rEnd = (r.Item2.Xz);
@@ -286,7 +290,7 @@ namespace template
 
             foreach (PointLight l in lights)
             {
-
+                //Find the realive origin for the lights, and draw them as a small circle
                 Vector2 lOrigin = l.origin.Xz;
                 Vector2 relativeOrigin = 10 * lOrigin + relativeDebug;
 
@@ -301,6 +305,7 @@ namespace template
 
             foreach (Primitive p in primitives)
             {
+                //If the primitive is a sphere draw the sphere at the relative position with the right colour
                 if (p.GetType() == typeof(Sphere))
                 {
                     Vector2 pOrigin = p.origin.Xz;
@@ -313,6 +318,8 @@ namespace template
                         screen.pixels[x + y * screen.width] = VectorToInt(p.colour);
                     }
                 }
+
+                //Else we have a triangle (because we don't draw any planes other then the floor plane) and we draw the three corners from a top-down perspective
                 else
                 {
                     Vector2 p1 = 10 * p.p1.Xz + relativeDebug, p2 = 10 * p.p2.Xz + relativeDebug, p3 = 10 * p.p3.Xz + relativeDebug;
@@ -323,8 +330,10 @@ namespace template
                 }
             }
 
-
+            //Draw the camera
             screen.pixels[(int)(relativeDebug.X + (10 * camera.origin.X)) + (int)(relativeDebug.Y + (10 * camera.origin.Z)) * screen.width] = 0xffffff;
+
+            //Draw the screen
             screen.Line((int)relativeDebug.X + (10 * (int)camera.screen.p1.X), (int)relativeDebug.Y + (10 * (int)camera.screen.p1.Z), (int)relativeDebug.X + (10 * (int)camera.screen.p2.X), (int)relativeDebug.Y + (10 * (int)camera.screen.p2.Z), 0xffffff);
 
         }
@@ -332,6 +341,8 @@ namespace template
         public void CheckMovement()
         {
             keyPressed = false;
+
+            //Space and Left Shift are for movement on the Y-axis
             if (Keyboard.GetState().IsKeyDown(Key.Space))
             {
                 keyPressed = true;
@@ -342,6 +353,8 @@ namespace template
                 keyPressed = true;
                 y += 0.1f;
             }
+
+            //W and S are for movement on the Z-axis
             if (Keyboard.GetState().IsKeyDown(Key.W))
             {
                 keyPressed = true;
@@ -352,6 +365,8 @@ namespace template
                 keyPressed = true;
                 z += 0.1f;
             }
+
+            //A and D are for movement on the X-axis
             if (Keyboard.GetState().IsKeyDown(Key.A))
             {
                 keyPressed = true;
@@ -362,6 +377,8 @@ namespace template
                 keyPressed = true;
                 x += 0.1f;
             }
+
+            //Numpad keys + and - are for increasing and decreasing the FOV
             if (Keyboard.GetState().IsKeyDown(Key.KeypadPlus))
             {
                 keyPressed = true;
@@ -372,6 +389,8 @@ namespace template
                 keyPressed = true;
                 newFov -= 5;
             }
+
+            //Q and E are for rotating the camera left and right
             if (Keyboard.GetState().IsKeyDown(Key.Q))
             {
                 keyPressed = true;
@@ -382,6 +401,8 @@ namespace template
                 keyPressed = true;
                 xRotation += 0.1f;
             }
+
+            //R and F are for rotating the camera up and down
             if (Keyboard.GetState().IsKeyDown(Key.R))
             {
                 keyPressed = true;
@@ -393,21 +414,24 @@ namespace template
                 yRotation += 0.1f;
             }
 
-
+            //Make sure we update the camera if a key is pressed
             if (keyPressed)
                 camera.UpdateCamera(x, y, z, yRotation, xRotation, newFov);
         }
 
+        //Entrywise product for Vector3's
         public Vector3 EntrywiseProduct(Vector3 vector1, Vector3 vector2)
         {
             return new Vector3(vector1.X * vector2.X, vector1.Y * vector2.Y, vector1.Z * vector2.Z);
         }
 
+        //Entrywise product for Vector2's
         public Vector2 EntrywiseProduct(Vector2 vector1, Vector2 vector2)
         {
             return new Vector2(vector1.X * vector2.X, vector1.Y * vector2.Y);
         }
         
+        //Clamp the individual components of a Vector3 
         public void ClampVector(ref Vector3 vector, float clampHigh, float clampLow = float.MinValue)
         {
             //X component
@@ -429,16 +453,19 @@ namespace template
                 vector.Z = clampHigh;
         }
 
+        //Convert an int to a Vector3 where each component of the vector represents a colour component
         public Vector3 intToVector(int colour)
         {
             return new Vector3(((colour >> 16) & 255) / 255f, ((colour >> 8) & 255) / 255f, (colour & 255) / 255f);
         }
 
+        //Convert a Colour to a Vector3 where each component of the vector represents a colour component
         public Vector3 ColourToVector(Color4 colour)
         {
             return new Vector3(colour.R, colour.G, colour.B);
         }
 
+        //Convert a Vector3 to an int where each component of the vector represents a colour component
         public int VectorToInt(Vector3 colour)
         {
             return (((int)(colour.X * 255) << 16) + ((int)(colour.Y * 255) << 8) + (int)(colour.Z * 255));

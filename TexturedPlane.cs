@@ -15,7 +15,9 @@ namespace template
     {
         public Vector3 normal;
         public float d;
-        public TexturedPlane(Vector3 p1p2, Vector3 p1p3, Vector3 normal, float d, Vector3 colour, Vector3 origin, string texture, float dielectric = 0, float reflective = 0, float refractionIndex = 1.52f, float radius = 0) : base(colour, origin, dielectric, reflective, refractionIndex, radius)
+
+        //A textured plane is made by looking at the normal, the tangent and the bitangent of the plane, and the value d from the implicit form of the plane
+        public TexturedPlane(Vector3 p1p2, Vector3 p1p3, Vector3 normal, float d, Vector3 colour, string texture, float dielectric = 0, float reflective = 0, float refractionIndex = 1.52f, float radius = 0) : base(colour, dielectric, reflective, refractionIndex)
         {
             this.p1p2 = p1p2;
             this.p1p3 = p1p3;
@@ -24,17 +26,14 @@ namespace template
             this.texture = new Bitmap(texture);
         }
 
+        //Find the intersection point with a ray using the formula from the slides
         public override float Intersect(Ray ray)
         {
             return -(Vector3.Dot(ray.origin, normal) + d) / Vector3.Dot(ray.direction, normal);
         }
 
+        //The normal of the plane is the same for every point on the plane so we disregard the given point
         public override Vector3 Normal(Vector3 point)
-        {
-            return normal;
-        }
-
-        public override Vector3 Normal()
         {
             return normal;
         }
