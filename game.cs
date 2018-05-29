@@ -49,7 +49,7 @@ namespace template
 
             //Add Lightsources to the scene
             lights = new List<PointLight>();
-            lights.Add(new PointLight(new Vector3(0, -10, -20), 0.8f, new Vector3(0.5f, 1, 1)));
+            lights.Add(new PointLight(new Vector3(0, -10, -10), 0.8f, new Vector3(0.5f, 1, 1)));
             lights.Add(new PointLight(new Vector3(10, -15, -5), 0.4f, new Vector3(1, 0.5f, 0)));
 
             debugRays = new List<Tuple<Vector3, Vector3, int>>();
